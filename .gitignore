@@ -6,6 +6,8 @@
 *.dta
 *.csv
 *.docx
+*.pdf
+*.xlsx
 presentation/others/
 figures/
 data/
