@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.rds
+*.dta
+*.csv
+*.docx
+presentation/others/
+figures/
+data/
