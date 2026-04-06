@@ -1,14 +1,21 @@
-# # # # # # # # # # #
-# DATA PREPERATION  #
-# # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# R code for                                                                              # 
+# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in Germany #
+# Author: Emir Zecovic                                                                    #
+# Last Update: 06.04.2026                                                                 #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# # # # # # # # # # # # 
+# DATA MERGE PAIRFAM  #
+# # # # # # # # # # # #
 
 # Setup ----
 ## Packages ----
-# if ("convenience" %in% rownames(installed.packages()) ==F) {
-#   devtools::install_github("ratsupaltuf/convenience", force=T)
-# }
+if ("convenience" %in% rownames(installed.packages()) ==F) {
+  devtools::install_github("ratsupaltuf/convenience", force=T)
+}
 
-packages <- c("tidyverse", "haven", "pastecs", "datawizard", #"convenience",
+packages <- c("tidyverse", "haven", "pastecs", "datawizard", "convenience",
               "ggplot2", "ggrepel", "sjPlot", "lme4", "knitr", "kableExtra", 
               "stringr", "flextable", "officer", "sf", "plm", "stargazer",
               "patchwork", "tidytext", "sjlabelled")
@@ -18,188 +25,95 @@ rm(packages)
 options(max.print=10000)
 
 
+# Load data ----
+
+## Mode merge ----
+### Wave 12 ----
+w12_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12_capi.dta")
+w12_cati <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12_cati.dta")
+w12 <- rbind(w12_capi, w12_cati) %>%
+  arrange(id)
+
+### Wave 13 ----
+w13_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13_capi.dta")
+w13_cati <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13_cati.dta")
+w13 <- rbind(w13_capi, w13_cati) %>%
+  arrange(id)
+
+### Wave 14 ----
+w14_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_capi.dta")
+w14_cawi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_cawi.dta")
+w14_papi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_papi.dta")
+w14 <- bind_rows(w14_capi, w14_cawi, w14_papi) %>%
+  arrange(id)
+
+### Save ----
+# haven::write_dta(w12, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12.dta")
+# haven::write_dta(w13, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13.dta")
+# haven::write_dta(w14, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14.dta")
 
 
 
 
-# Folder path
-path <- "/posit_share/home/zecovic-e/data"
-#path <- "C:/Users/Emir  PC/Desktop/PhD/freda/data/pairfam"
 
-# Variables you want (excluding wave, since we add it ourselves)
-vars_needed <- c(
-  # Admin
-  "id", "wave", "original_sex", "original_doby",
-  #"hc1pxi2",                  # Bundesland Wohnort x (W1) (NOT WORKING)
-  "sd4g",                     # Geschlecht Partner   (W1)
-  
-  # Education
-  "sd27",                     # Höchster allgemeinbildender Schulabschluss
-  "sd28",                     # Berufsausbildung oder Studium abgeschlossen
-  
-  # Job Status
-  #"sd23_",                    # Aktuelle (Aus-)Bildung / Erwerbstätigkeit (Status Quo)
-  "sd23i1",
-  "sd23i2",
-  "sd23i3",
-  "sd23i4",
-  "sd23i5",
-  "sd23i6",
-  "sd23i7",
-  "sd23i8",
-  "sd23i9",
-  "sd23i9o",
-  "sd23i10",
-  "sd23i11",
-  "sd23i12",
-  "sd23i13",
-  "sd23i14",
-  "sd23i15",
-  "sd23i16",
-  "sd23i16o",
-  "sd23i17",
-  "sd23i18",
-  "sd23i19",
-  "sd23i20",
-  "sd23i21",
-  "sd23i22",
-  
-  #"ehc19_",                   # Aktuelle (Aus-)Bildung / Erwerbstätigkeit (EHC)
-  "ehc19i1",
-  "ehc19i2",
-  "ehc19i3",
-  "ehc19i4",
-  "ehc19i5",
-  "ehc19i6",
-  "ehc19i7",
-  "ehc19i8",
-  "ehc19i9",
-  "ehc19i9o",
-  "ehc19i10",
-  "ehc19i11",
-  "ehc19i12",
-  "ehc19i13",
-  "ehc19i14",
-  "ehc19i15",
-  "ehc19i16",
-  "ehc19i16o",
-  "ehc19i17",
-  "ehc19i18",
-  "ehc19i19",
-  "ehc19i20",
-  "ehc19i21",
-  "ehc19i22",
-  "ehc19i22o",
-  "ehc19i23",
-  
-  # Partnership
-  "sd3",                      # Aktueller Partnerschaftsstatus: Beziehung vorhanden
-  "sd10",                     # Aktueller Familienstand
-  "sd7e1",                    # Aktuelle Kohabitation mit aktuellem Partner
-  "sd11",                     # Mit aktuellem Partner verheiratet
-  
-  # _______________
-  #"ehc2px",                   # Beziehung mit Partner x jetzt
-  #"ehc3px",                   # Zusammenleben mit Partner x jetzt
-  #"ehc4px",                   # Ehe mit Partner x jetzt
-  
-  # Partnership Duration (W2-W13)
-  #"sd5ezbm",                  # Beginn Beziehung mit aktuellem Partner: Monat (NOT WORKING)
-  #"sd5ezby",                  # Beginn Beziehung mit aktuellem Partner: Jahr  (NOT WORKING)
-  "sd8e1bm",                   # Beginn aktuelle Kohabitation mit aktuellem Partner: Monat
-  "sd8e1by",                   # Beginn aktuelle Kohabitation mit aktuellem Partner: Jahr
-  
-  # Life satisfaction
-  "sat6",
-  
-  # Health Status
-  "hlt1",                     # Gesundheitszustand letzte 4 Wochen
-  
-  # Children
-  #"ehc10kx",                  # Kohabitation mit Kind x (Not Working!)
-  
-  # HH-income
-  "inc13",                    # Monatliches Haushaltseinkommen Netto
-  "inc23",                    # Monatliches Haushaltseinkommen Kategorie
-  #"inc18",                    # Anzahl Personen, die zum Haushaltseinkommen beitragen
-  "inc24",                    # Was ist Ihr Anteil am Haushaltseinkommen (in Prozent) (W2-W3)
-  "inc28",                    # Zufriedenheit mit finanzieller Situation des Haushalts
-  
-  "inc27i2",                  # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
-  "inc27i3"                   # HH: Bei uns ist das Geld meistens knapp (W2-W14)
-)
 
-# Helper: read one file, keep only available vars, add missing vars as NA, add wave/source
-read_anchor_subset <- function(file, wave_num, vars_needed) {
-  dat <- haven::read_dta(file)
-  
-  # pairfam files are usually already lowercase, but this makes it safer
-  names(dat) <- tolower(names(dat))
-  vars_needed <- tolower(vars_needed)
-  
-  # Keep only available variables
-  keep <- intersect(names(dat), vars_needed)
-  dat <- dat[, keep, drop = FALSE]
-  
-  # Add missing variables as NA so bind_rows works consistently
-  missing_vars <- setdiff(vars_needed, names(dat))
-  for (v in missing_vars) dat[[v]] <- NA
-  
-  # Reorder columns consistently
-  dat <- dat[, vars_needed, drop = FALSE]
-  
-  # Add wave and source metadata
-  dat$wave <- wave_num
-  dat$source_file <- basename(file)
-  
-  dat
-}
+# Long format ----
+#path <- "/posit_share/home/zecovic-e/data/pairfam"
+path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam"
+files <- paste0("anchor", 1:14, ".dta")
+files
 
-# Waves 1-11: regular anchor files
-waves_1_11 <- lapply(1:11, function(w) {
-  f <- file.path(path, paste0("anchor", w, ".dta"))
-  read_anchor_subset(f, w, vars_needed)
-})
 
-# Waves 12-14: mode-specific anchor files (capi/cati/cawi/papi)
-read_mode_wave <- function(wave_num, path, vars_needed) {
-  files <- list.files(
-    path = path,
-    pattern = paste0("^anchor", wave_num, "_.*\\.dta$"),
-    full.names = TRUE
+
+## Variables
+vars <- c(
+  "id", "pid", "wave", "sample",        # ID, PID, Wave, Sample
+  "sex_gen", "psex_geg",                # Sex (+partner)
+  "age", "page",                        # Age/Partner Age
+  "k1age", "k2age", "k3age",            # Children Age
+  "cohort", "migstatus", "pmigstatus",  # Birth cohort/ Mig.status/ Partner Mig.status
+  "east",                               # East Germany
+  "homosex", "homosex_new",             # Anchor's sexual orientation
+  
+  satrelship   = "sat3",                # Relationship satisfaction
+  p_satrelship = "sat4",                # Relationship satisfaction (partner)
+  
+  "relstat", "marstat", "pmarstat",     # Relationship status/ Marital status (anchor, partner)
+  "np", "ncoh",                         # Number of previous (+cohabited) partners
+  "meetdur",                            # Months since anchor and current partner got to know each other  
+  "reldur", "cohabdur", "mardur",       # Duration of current relationship, cohabitation and marriage
+  
+  "nkidsliv", "childmrd",               # Number of all kids living with anchor / Number of children living in household
+  "hhcomp", "hhsizemrd",                # Household composition                 / Household size
+  "pmrd",                               # Partner lives in household
+
+  "enrol", "penrol",                    # Enrollment in school or vocational qualification at time of interview (anchor, partner)
+  "school", "pschool",                  # Highest school degree (+partner)
+  "vocat", "pvocat",                    # Highest vocational degree (+partner)
+  "yeduc", "pyeduc",                    # Years of schooling (+partner)
+  "lfs", "plfs",                        # Labor force status (anchor, partner)
+  
+  "hhincgcee", "hhincoecd",             # HH-Income (GCEE, OECD)
+  "incnet", "hhincnet",                 # Net personal, Net HH
+  "inc28",                              # Zufriedenheit mit finanzieller Situation des Haushalts
+  "inc27i2",                            # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
+  "inc27i3",                            # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
+  
+  #"inc10i1",                           # Kindergeld
+  #"inc10i2",                           # Lohnfortzahlung im Mutterschutz
+  #"inc10i3",                           # Elterngeld
+  wohngeld  = "inc10i4",                # Wohngeld oder Lastenzuschuss
+  #"inc10i5",                           # Leistungen der Pflegeversicherung
+  sozhilfe  = "inc10i7",                # Sozialhilfe
+  aI        =  "inc10i8",               # Arbeitslosengeld I (ALG I)
+  aII       = "inc10i9",                # Arbeitslosengeld II einschließlich Sozialgeld
+  grundsich = "inc10i10",               # Grundsicherung im Alter und bei Erwerbsminderung
+  krankgeld = "inc10i11",               # Krankengeld
+  
+  "casprim", "cassec",                  # Current primary (anchor, partner)
+  "pcasprim", "pcassec",                # Secondary activity status
+  
+  "sat6",                               # Life satisfaction 
+  "pcs", "mcs",                         # Summary score physical and mental health
+  "hlt1",                               # Gesundheitszustand letzte 4 Wochen
   )
-  
-  # Keep interview mode files only
-  files <- files[grepl("_(capi|cati|cawi|papi)\\.dta$", basename(files), ignore.case = TRUE)]
-  
-  if (length(files) == 0) return(NULL)
-  
-  dat_list <- lapply(files, function(f) read_anchor_subset(f, wave_num, vars_needed))
-  dplyr::bind_rows(dat_list)
-}
-
-waves_12_14 <- lapply(12:14, function(w) read_mode_wave(w, path, vars_needed))
-
-# Combine all waves
-pairfam_long <- dplyr::bind_rows(waves_1_11, waves_12_14)
-
-# Final column order (wave first is convenient)
-pairfam_long <- pairfam_long %>%
-  dplyr::relocate(id, wave, source_file)
-
-# Quick checks
-dplyr::glimpse(pairfam_long)
-table(pairfam_long$wave, useNA = "ifany")
-
-
-pairfam_long %>%
-  dplyr::count(id, wave) %>%
-  dplyr::count(n)
-
-
-
-
-
-# Save ----
-# haven::write_dta(pairfam_long, "pairfam_long.dta")
-# saveRDS(pairfam_long, "pairfam_long.rds")
