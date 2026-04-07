@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in Germany #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 06.04.2026                                                                 #
+# Last Update: 07.04.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # # # 
@@ -75,8 +75,8 @@ vars <- c(
   "east",                               # East Germany
   "homosex", "homosex_new",             # Anchor's sexual orientation
   
-  satrelship   = "sat3",                # Relationship satisfaction
-  p_satrelship = "sat4",                # Relationship satisfaction (partner)
+  "sat3",                               # Relationship satisfaction
+  "sat4",                               # Relationship satisfaction (partner)
   
   "relstat", "marstat", "pmarstat",     # Relationship status/ Marital status (anchor, partner)
   "np", "ncoh",                         # Number of previous (+cohabited) partners
@@ -102,18 +102,40 @@ vars <- c(
   #"inc10i1",                           # Kindergeld
   #"inc10i2",                           # Lohnfortzahlung im Mutterschutz
   #"inc10i3",                           # Elterngeld
-  wohngeld  = "inc10i4",                # Wohngeld oder Lastenzuschuss
+  "inc10i4",                            # Wohngeld oder Lastenzuschuss
   #"inc10i5",                           # Leistungen der Pflegeversicherung
-  sozhilfe  = "inc10i7",                # Sozialhilfe
-  aI        =  "inc10i8",               # Arbeitslosengeld I (ALG I)
-  aII       = "inc10i9",                # Arbeitslosengeld II einschließlich Sozialgeld
-  grundsich = "inc10i10",               # Grundsicherung im Alter und bei Erwerbsminderung
-  krankgeld = "inc10i11",               # Krankengeld
+  "inc10i7",                            # Sozialhilfe
+  "inc10i8",                            # Arbeitslosengeld I (ALG I)
+  "inc10i9",                            # Arbeitslosengeld II einschließlich Sozialgeld
+  "inc10i10",                           # Grundsicherung im Alter und bei Erwerbsminderung
+  "inc10i11",                           # Krankengeld
   
   "casprim", "cassec",                  # Current primary (anchor, partner)
   "pcasprim", "pcassec",                # Secondary activity status
   
   "sat6",                               # Life satisfaction 
   "pcs", "mcs",                         # Summary score physical and mental health
-  "hlt1",                               # Gesundheitszustand letzte 4 Wochen
+  "hlt1"                                # Gesundheitszustand letzte 4 Wochen
   )
+
+
+## Unbalanced ----
+pairfam_long <- lapply(files, function(f) {
+  read_dta(file.path(path, f)) %>%
+    select(any_of(vars))
+}) %>%
+  bind_rows() %>%
+  arrange(id, wave)
+
+## Balanced ----
+pairfam_balanced <- pairfam_long %>%
+  group_by(id) %>%
+  filter(n_distinct(wave) == 14) %>%
+  ungroup()
+
+
+# Save ----
+haven::write_dta(pairfam_long, "pairfam_long.dta")
+haven::write_dta(pairfam_balanced, "pairfam_balanced.dta")
+# saveRDS(pairfam_long, "pairfam_long.rds")
+# saveRDS(pairfam_long, "pairfam_balanced.rds")
