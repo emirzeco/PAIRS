@@ -61,7 +61,7 @@ f <- select(f,
             
             # satisfaction relationship
             satrelship = "sat3",      # in all Waves
-            lifestat   = "sat6",      # in all Waves
+            lifesat    = "sat6",      # in all Waves
             
             # Dyadic Adjustment Scale
             #"pa18i1": "pa18i16",     # only in Wave 6
