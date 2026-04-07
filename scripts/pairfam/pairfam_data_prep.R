@@ -1,12 +1,13 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# R code for                                                                              #
-# FReDA Dissertation Paper Emir Zecovic (11.2025)                                         #
-# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in Germany #                                                                
+# R code for                                                                              # 
+# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in Germany #
+# Author: Emir Zecovic                                                                    #
+# Last Update: 07.04.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# # # # # # # # # # #
-# DATA PREPERATION  #
-# # # # # # # # # # #
+# # # # # # # # # # # # # # #
+# DATA PREPERATION PAIRFAM  #
+# # # # # # # # # # # # # # # 
 
 # Setup ----
 ## Packages ----
@@ -25,56 +26,42 @@ options(max.print=10000)
 
 
 ## Load ----
-#f_long<-haven::read_dta("FREDAanchor_long.dta")
-p <-haven::read_dta("pairfam_long.dta")
+p <-haven::read_dta("data/pairfam_long.dta")
 
-
-p <- select(p,
-            "id", "wave", "source_file", sex = "original_sex",
-            
-            "srs1i4",                                           # Present: Importance living in a partnership (w1 - w11)
-            "sd3",                                              # Current relationship status: Partnership existent (w1)
-            "sd27",
-            "pa16i1", "pa16i2", "pa16i3",                       # Quality of relationship indicators (CASI) (w1 - w13; two-year)
-            "pa16i4", "pa16i5", "pa16i6",                       # Quality of relationship indicators (CASI) (w1 - w13; two-year)
-            
-            satrelship   = "sat3",
-            p_satrelship = "sat4",
-            lifestat     = "sat6", # Life satisfaction (w1 - w14)
-            
-            "pa21i1", # Disagree with partner: Spending leisure time 	                (w3 - w13; two-year)
-            "pa21i2", # Disagree with partner: Division of Chores                     (w3 - w13; two-year)
-            "pa21i3", # Disagree with partner: Financial matters                      (w3 - w13; two-year) 
-            "pa21i4", # Disagree with partner: Involvement in career/education/School (w3 - w13; two-year)
-            "pa21i5", # Disagree with partner: Dealing with each other                (w3 - w13; two-year)
-            
-            netinc     = "inc2",  # # Net income last month (w1 - w14)
-            hhinc      = "inc13", # Monthly net household income (w1 - w14)
-            hhincshare = "inc24", # Own share in household income (per cent) (w2 - w3)
-            sub_fin_hh = "inc28", # Satisfaction with household's financial situation (w1 - w14)
-            
-            "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen
-            "inc27i3", # HH: Bei uns ist das Geld meistens knapp
-            
-            #"inc10i1",             # Kindergeld
-            #"inc10i2",             # Lohnfortzahlung im Mutterschutz
-            #"inc10i3",             # Elterngeld
-            wohngeld  = "inc10i4",  # Wohngeld oder Lastenzuschuss
-            #"inc10i5",             # Leistungen der Pflegeversicherung
-            sozhilfe  = "inc10i7",  # Sozialhilfe
-            aI        =  "inc10i8", # Arbeitslosengeld I (ALG I)
-            aII       = "inc10i9",  # Arbeitslosengeld II einschließlich Sozialgeld
-            grundsich = "inc10i10", # Grundsicherung im Alter und bei Erwerbsminderung
-            krankgeld = "inc10i11", # Krankengeld
-            )
-
-
-
-
-
+## Rename ----
+new_var_names <- c(sex           = "sex_gen",
+                   satrelship    = "sat3",
+                   P_satrelship  = "sat4",
+                   lifesat       = "sat6",
+                   
+                   
+                   sub_fin_hh    = "inc28",
+                   depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
+                   strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
+                   
+                   wohngeld      = "inc10i4",  # Wohngeld oder Lastenzuschuss
+                   sozhilfe      = "inc10i7",  # Sozialhilfe
+                   aI            = "inc10i8",  # Arbeitslosengeld I (ALG I)
+                   aII           = "inc10i9",  # Arbeitslosengeld II einschließlich Sozialgeld
+                   grundsich     = "inc10i10", # Grundsicherung im Alter und bei Erwerbsminderung
+                   krankgeld     = "inc10i11"  # Krankengeld
+                   )
+p <- rename(p,
+            all_of(new_var_names))
 
 
 # Missings ----
+
+# FE controls
+# Controls are presence of children, life satisfaction
+# age, individual health status, partner’s health status, marital status, relationship duration, and wave.
+
+
+
+
+
+
+
 
 ## satrelship ----
 p$satrelship <- ifelse(p$satrelship %in% 0:10, as.numeric(p$satrelship), NA)
