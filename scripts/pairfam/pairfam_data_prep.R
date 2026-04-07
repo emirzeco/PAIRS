@@ -34,7 +34,6 @@ new_var_names <- c(sex           = "sex_gen",
                    P_satrelship  = "sat4",
                    lifesat       = "sat6",
                    
-                   
                    sub_fin_hh    = "inc28",
                    depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
                    strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
@@ -50,11 +49,96 @@ p <- rename(p,
             all_of(new_var_names))
 
 
-# Missings ----
+# Recoding ----
+## Relationship Status ----
+p <- p %>%
+  mutate(
+    relstat3 = case_when(
+      relstat %in% c(2, 7, 10) ~ "LAT",
+      relstat %in% c(3, 8, 11) ~ "Cohabiting",
+      relstat == 4             ~ "Married",
+      TRUE                     ~ NA_character_
+    ),
+    relstat3 = factor(relstat3, 
+                      levels = c("LAT", "Cohabiting", "Married"))
+  )
+#table(p$relstat3, p$wave, useNA = "ifany")
 
-# FE controls
-# Controls are presence of children, life satisfaction
-# age, individual health status, partner’s health status, marital status, relationship duration, and wave.
+## Labor Force Status ----
+p <- p %>%
+  mutate(
+    lfstat = case_when(
+      lfs == 2            ~ "Parental leave",
+      lfs == 6            ~ "Retired",
+      lfs %in% c(3, 4, 7) ~ "Unemployed",
+      lfs == 9            ~ "Full-time employed",
+      lfs == 10           ~ "Part-time employed",
+      lfs == 8            ~ "Vocational training"
+      lfs %in% c(11, 13)  ~ "Marginal employment",
+      lfs == 12           ~ "Self-employed",
+      TRUE                ~ NA_character_
+    ),
+    lfstat = factor(lfstat,
+                    levels = c("Parental leave", "Retired", "Unemployed",
+                               "Full-time employed", "Part-time employed",
+                               "Vocational training", "Marginal employment", "Self-employed"))
+  )
+#table(p$lfstat, p$wave, useNA = "ifany")
+
+
+## Income ----
+
+
+
+
+
+
+
+
+
+# Sample reduction ----
+## Age ----
+# < 15 = NA
+
+## enrol ----
+alabs(p$enrol)
+# Drop all except 0 and 11 (vocational training (berufl. Ausbildung))
+
+
+
+
+
+
+# Missings ----
+## FE Missings ----
+p_fe <- p
+
+missings <- c(
+"grundsich", "aII", "sozhilfe", "wohngeld",
+"sat3",                               # Relationship satisfaction
+
+"relstat",
+"reldur",
+
+"age", "wave",
+"lifesat",     # Life satisfaction
+"nkidsliv",    # children in HH 
+"pmrd",        # Partner lives in household
+"lfs", "plfs", # Labor force status (anchor, partner)
+
+"hhincgcee",
+"hhincnet",
+"sub_fin_hh",
+
+"pcs",         # Summary score physical health
+"mcs",         # Summary score mental health
+)
+
+
+
+
+
+
 
 
 
