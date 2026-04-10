@@ -27,14 +27,15 @@ options(max.print=10000)
 
 ## Load ----
 p <-haven::read_dta("data/pairfam_long.dta")
+#p <-haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam_long.dta")
 
 ## Rename ----
 new_var_names <- c(sex           = "sex_gen",
                    satrelship    = "sat3",
-                   P_satrelship  = "sat4",
+                   p_satrelship  = "sat4",
                    lifesat       = "sat6",
                    
-                   sub_fin_hh    = "inc28",
+                   sub_fin_hh    = "inc28",   # Overall, how satisfied are you with your household's financial situation?
                    depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
                    strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
                    
@@ -50,19 +51,34 @@ p <- rename(p,
 
 
 # Recoding ----
+## Sex ----
+p <- p %>%
+  mutate(
+    sex = case_when(
+      sex == 2 ~ 0,
+      sex == 1 ~ 1,
+      TRUE     ~ NA_real_
+    ),
+    sex = factor(
+      sex,
+      levels = c(0, 1),
+      labels = c("Female", "Male")
+    )
+  )
+
+
 ## Relationship Status ----
 p <- p %>%
   mutate(
-    relstat3 = case_when(
-      relstat %in% c(2, 7, 10) ~ "LAT",
+    relstat2 = case_when(
       relstat %in% c(3, 8, 11) ~ "Cohabiting",
       relstat == 4             ~ "Married",
       TRUE                     ~ NA_character_
     ),
-    relstat3 = factor(relstat3, 
-                      levels = c("LAT", "Cohabiting", "Married"))
+    relstat2 = factor(relstat2, 
+                      levels = c("Cohabiting", "Married"))
   )
-#table(p$relstat3, p$wave, useNA = "ifany")
+#table(p$relstat2, p$wave, useNA = "ifany")
 
 ## Labor Force Status ----
 ### Anchor ----
@@ -74,7 +90,6 @@ p <- p %>%
       lfs %in% c(3, 4, 7) ~ "Unemployed",
       lfs == 9            ~ "Full-time employed",
       lfs == 10           ~ "Part-time employed",
-      lfs == 8            ~ "Vocational training",
       lfs %in% c(11, 13)  ~ "Marginal employment",
       lfs == 12           ~ "Self-employed",
       TRUE                ~ NA_character_
@@ -82,9 +97,9 @@ p <- p %>%
     lfstat = factor(lfstat,
                     levels = c("Parental leave", "Retired", "Unemployed",
                                "Full-time employed", "Part-time employed",
-                               "Vocational training", "Marginal employment", "Self-employed"))
+                               "Marginal employment", "Self-employed"))
   )
-#table(p$lfstat, p$wave, useNA = "ifany")
+table(p$lfstat, p$wave, useNA = "ifany")
 
 ### Partner ----
 p <- p %>%
@@ -95,7 +110,6 @@ p <- p %>%
       plfs %in% c(3, 4, 7) ~ "Unemployed",
       plfs == 9            ~ "Full-time employed",
       plfs == 10           ~ "Part-time employed",
-      plfs == 8            ~ "Vocational training",
       plfs %in% c(11, 13)  ~ "Marginal employment",
       plfs == 12           ~ "Self-employed",
       TRUE                ~ NA_character_
@@ -103,12 +117,20 @@ p <- p %>%
     p_lfstat = factor(p_lfstat,
                     levels = c("Parental leave", "Retired", "Unemployed",
                                "Full-time employed", "Part-time employed",
-                               "Vocational training", "Marginal employment", "Self-employed"))
+                               "Marginal employment", "Self-employed"))
   )
 table(p$p_lfstat, p$wave, useNA = "ifany")
 
 ## Income ----
 ### Log ----
+p <- p %>%
+  mutate(
+    hhincgcee = case_when(
+      hhincgcee < 0 ~ NA_real_,
+      TRUE ~ hhincgcee
+    ),
+    log_hhincgcee = log1p(hhincgcee)      ## HH-Income (Nettoäquivalenzeinkommen, GCEE)
+  ) 
 
 
 
@@ -138,41 +160,27 @@ p <- p %>%
     )
   )
 
-### AII + Soz.Hilfe ----
-p <- p %>%
-  mutate(
-    aII_sozhilfe = case_when(
-      aII %in% c(0, 7) & sozhilfe %in% c(0, 7) ~ 0,
-      aII == 1 & sozhilfe == 1 ~ 2,
-      aII == 1 & sozhilfe %in% c(0, 7) ~ 1,
-      aII %in% c(0, 7) & sozhilfe == 1 ~ 1,
-      TRUE ~ NA_real_
-    )
-)
-
 ### AGII + Soz.Hilfe + Grundischerung
 p <- p %>%
   mutate(
-    benefit_combined_3 = case_when(
-      aII %in% c(0, 7) & grundsich %in% c(0, 7) & sozhilfe %in% c(0, 7) ~ 0,
-      (aII == 1) + (grundsich == 1) + (sozhilfe == 1) == 1 ~ 1,
-      (aII == 1) + (grundsich == 1) + (sozhilfe == 1) == 2 ~ 2,
-      (aII == 1) + (grundsich == 1) + (sozhilfe == 1) == 3 ~ 3,
+    benefit_dummy = case_when(
+      aII         %in% c(0, 7) &
+        grundsich %in% c(0, 7) &
+        sozhilfe  %in% c(0, 7) ~ 0,
+      aII == 1 | grundsich == 1 | sozhilfe == 1 ~ 1,
       TRUE ~ NA_real_
     )
   )
 
 ## Negative values ----
 vars_neg_na <- c(
-  "satrelship", "P_satrelship",
+  "satrelship", "p_satrelship",
   "reldur",
   "age", "wave", "cohort",
   "lifesat",
   "nkidsliv",
-  "hhincgcee", "hhincoecd", "hhincnet",
   "sub_fin_hh",
-  "pcs",
-  "mcs"
+  "hlt1"
 )
 
 p <- p %>%
@@ -182,65 +190,60 @@ p <- p %>%
       ~ ifelse(. < 0, NA, .)
     )
   )
-table(p$satrelship, useNA = "ifany")
+table(p$satrelship, p$wave, useNA = "ifany")
 
 
 
 # Sample reduction ----
 ## Age ----
 p <- p %>%
-  filter(age >= 15) # Drop all samples younger than 15
+  filter(age >= 15) # Drop samples younger than 15
 
-## enrol ----
+## Homosexual ----
 p <- p %>%
-  filter(enrol %in% c(0, 11)) # Drop all samples that are enrolled
-                              # except 0 and 11 (not enrolled & vocational training)
+  filter(homosex == 0)
 
-## Drop Wave 14
+## Enrolled ----
 p <- p %>%
-  filter(wave != 14)
+  filter(enrol == 0) # Drop samples that are enrolled
+
+## Wave 14 ----
+p <- p %>%
+  filter(wave != 14) # Relstat not available in W14
 
 
 # Missings ----
 ## FE Missings ----
-p_fe <- p
-
 missings <- c(
 "grundsich", "aII", "sozhilfe", "wohngeld",
-"aII_sozhilfe", "benefit_combined_3",
-"satrelship", "P_satrelship",                                      # Relationship satisfaction
+"benefit_dummy",
+"satrelship", "p_satrelship",   # Relationship satisfaction
 
-"relstat3",
+"relstat2",
 "reldur",
 
-"age", "wave", "cohort",
-"lifesat",       # Life satisfaction
-"nkidsliv",      # children in HH 
-#"pmrd",         # Partner lives in household
-"lfs", "plfs",   # Labor force status (anchor, partner)
+"age","cohort", "sex",
+"lifesat",                      # Life satisfaction
+"nkidsliv",                     # children in HH 
+#"pmrd",                        # Partner lives in household
+"lfstat", "p_lfstat",           # Labor force status (anchor, partner)
 
-"hhincgcee",
-"hhincnet",
+"log_hhincgcee",
+# "hhincoecd",
+# "hhincnet",
 "sub_fin_hh",
 
-"pcs",          # Summary score physical health
-"mcs",          # Summary score mental health
+"hlt1"
+
+# "pcs",          # Summary score physical health
+# "mcs"           # Summary score mental health
 )
 
-
-## Clean ----
-# vars_main <- c(
-#   "satrelship",
-#   "grundsich", "sozhilfe", "aII", "wohngeld",
-#   "sub_fin_hh", "lifesat", "log_hhinc", "inc_quartile", "low_income_q1"
-# )
-# p_reduc <- p
-
-
 ## Remove NAs ----
-# prop.table(table(complete.cases(p_reduc[vars_main])))
-# p_reduc <- p_reduc[complete.cases(p_reduc[vars_main]), ]
-#rm(vars_main)
+p_reduc <- p
+prop.table(table(complete.cases(p_reduc[missings])))
+p_reduc <- p_reduc[complete.cases(p_reduc[missings]), ]
+rm(missings, new_var_names, vars_neg_na)
 
 
 
@@ -289,18 +292,11 @@ missings <- c(
 
 
 
-
-
-
-
-
-
-
-## Income ----
+## Income
 # p$hhinc <- ifelse(p$hhinc >= 0, as.numeric(p$hhinc), NA)
 # p$log_hhinc <- log1p(p$hhinc)
 # 
-# ### Quartiles ----
+# ### Quartiles
 # qcuts <- quantile(p$hhinc, probs = c(.25, .50, .75), na.rm = TRUE)
 # 
 # p$inc_quartile <- with(p, dplyr::case_when(
@@ -318,7 +314,7 @@ missings <- c(
 # 
 # table(p$inc_quartile, useNA = "ifany")
 # 
-# ### Low-income ----
+# ### Low-income
 # p <- p %>%
 #   dplyr::mutate(
 #     low_income_q1 = dplyr::case_when(
