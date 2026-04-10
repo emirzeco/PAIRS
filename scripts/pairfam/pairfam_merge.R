@@ -11,11 +11,11 @@
 
 # Setup ----
 ## Packages ----
-if ("convenience" %in% rownames(installed.packages()) ==F) {
-  devtools::install_github("ratsupaltuf/convenience", force=T)
-}
+# if ("convenience" %in% rownames(installed.packages()) ==F) {
+#   devtools::install_github("ratsupaltuf/convenience", force=T)
+# }
 
-packages <- c("tidyverse", "haven", "pastecs", "datawizard", "convenience",
+packages <- c("tidyverse", "haven", "pastecs", "datawizard", #"convenience",
               "ggplot2", "ggrepel", "sjPlot", "lme4", "knitr", "kableExtra", 
               "stringr", "flextable", "officer", "sf", "plm", "stargazer",
               "patchwork", "tidytext", "sjlabelled")
@@ -29,21 +29,28 @@ options(max.print=10000)
 
 ## Mode merge ----
 ### Wave 12 ----
-w12_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12_capi.dta")
-w12_cati <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12_cati.dta")
+w12_capi <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor12_capi.dta")
+w12_cati <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor12_cati.dta")
+# w12_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12_capi.dta")
+# w12_cati <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor12_cati.dta")
 w12 <- rbind(w12_capi, w12_cati) %>%
   arrange(id)
 
 ### Wave 13 ----
-w13_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13_capi.dta")
-w13_cati <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13_cati.dta")
+w13_capi <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor13_capi.dta")
+w13_cati <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor13_cati.dta")
+# w13_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13_capi.dta")
+# w13_cati <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor13_cati.dta")
 w13 <- rbind(w13_capi, w13_cati) %>%
   arrange(id)
 
 ### Wave 14 ----
-w14_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_capi.dta")
-w14_cawi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_cawi.dta")
-w14_papi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_papi.dta")
+w14_capi <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor14_capi.dta")
+w14_cawi <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor14_cawi.dta")
+w14_papi <- haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam/anchor14_papi.dta")
+# w14_capi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_capi.dta")
+# w14_cawi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_cawi.dta")
+# w14_papi <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam/anchor14_papi.dta")
 w14 <- bind_rows(w14_capi, w14_cawi, w14_papi) %>%
   arrange(id)
 
@@ -55,11 +62,10 @@ w14 <- bind_rows(w14_capi, w14_cawi, w14_papi) %>%
 
 
 
-
-
 # Long format ----
 #path <- "/posit_share/home/zecovic-e/data/pairfam"
-path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam"
+#path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam"
+path <- "/posit_share/home/zecovic-e/PAIRS/data/pairfam/"
 files <- paste0("anchor", 1:14, ".dta")
 files
 
