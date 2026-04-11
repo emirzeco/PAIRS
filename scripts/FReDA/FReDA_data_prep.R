@@ -26,7 +26,7 @@ options(max.print=10000)
 
 ## Load ----
 #f_long<-haven::read_dta("FREDAanchor_long.dta")
-f <-haven::read_dta("FREDAanchor_balanced.dta")
+f <-haven::read_dta("data/FREDAanchor_balanced.dta")
 
 
 ## Rename ----
