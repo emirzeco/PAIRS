@@ -219,35 +219,9 @@ M30 <- plm(
   index = c("id", "wave"),
   model = "random"
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Duration ----
+## Grundsicherung ----
 p_reduc <- p_reduc %>%
   arrange(id, wave) %>%
   group_by(id) %>%
@@ -261,15 +235,13 @@ p_reduc <- p_reduc %>%
     )
   ) %>%
   ungroup()
-
-
 p_reduc <- p_reduc %>%
   mutate(
     welfare_duration_sq = welfare_duration^2
   )
 
-### Model ----
-M_duration <- plm(
+### M31 ----
+M31 <- plm(
   satrelship ~ welfare_duration + welfare_duration_sq +
     age + page  + school + migstatus + 
     relstat2 + reldur +
@@ -277,14 +249,13 @@ M_duration <- plm(
     nkidsliv + 
     hlt1 + 
     wave + cohort + east,
-  data = p_men,
+  data = p_reduc,
   index = c("id", "wave"),
   model = "random"
 )
 
 
-
-### Wohngeld duration ----
+## Wohngeld ----
 p_reduc <- p_reduc %>%
   arrange(id, wave) %>%
   group_by(id) %>%
@@ -301,7 +272,7 @@ p_reduc <- p_reduc %>%
   ungroup()
 
 
-
+### M32 ----
 M_duration_wohngeld <- plm(
   satrelship ~ wohngeld_duration + wohngeld_duration_sq +
     age + page + school + migstatus + 
@@ -310,7 +281,7 @@ M_duration_wohngeld <- plm(
     nkidsliv + 
     hlt1 + 
     wave + cohort + east,
-  data = p_men,
+  data = p_reduc,
   index = c("id", "wave"),
   model = "random"
 )
