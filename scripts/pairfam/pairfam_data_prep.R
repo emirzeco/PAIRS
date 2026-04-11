@@ -123,6 +123,7 @@ table(p$p_lfstat, p$wave, useNA = "ifany")
 
 ## Income ----
 ### Log ----
+#### GCEE ----
 p <- p %>%
   mutate(
     hhincgcee = case_when(
@@ -130,7 +131,21 @@ p <- p %>%
       TRUE ~ hhincgcee
     ),
     log_hhincgcee = log1p(hhincgcee)      ## HH-Income (Nettoäquivalenzeinkommen, GCEE)
-  ) 
+  )
+#### OECD ----
+# p <- p %>%
+#   mutate(
+#     hhincoecd = case_when(
+#       hhincoecd < 0 ~ NA_real_,
+#       TRUE ~ hhincgcee
+#     ),
+#     log_hhincoecd = log1p(hhincoecd)      ## HH-Income (Nettoäquivalenzeinkommen, OECD)
+#   ) 
+
+
+
+
+
 
 
 
@@ -179,7 +194,7 @@ vars_neg_na <- c(
   "age", "wave", "cohort",
   "lifesat",
   "nkidsliv",
-  "sub_fin_hh",
+  #"sub_fin_hh",
   "hlt1"
 )
 
@@ -213,7 +228,6 @@ p <- p %>%
 
 
 # Missings ----
-## FE Missings ----
 missings <- c(
 "grundsich", "aII", "sozhilfe", "wohngeld",
 "benefit_dummy",
@@ -229,12 +243,11 @@ missings <- c(
 "lfstat", "p_lfstat",           # Labor force status (anchor, partner)
 
 "log_hhincgcee",
-# "hhincoecd",
+#"log_hhincoecd",
 # "hhincnet",
-"sub_fin_hh",
+#"sub_fin_hh",
 
 "hlt1"
-
 # "pcs",          # Summary score physical health
 # "mcs"           # Summary score mental health
 )
@@ -244,45 +257,6 @@ p_reduc <- p
 prop.table(table(complete.cases(p_reduc[missings])))
 p_reduc <- p_reduc[complete.cases(p_reduc[missings]), ]
 rm(missings, new_var_names, vars_neg_na)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
