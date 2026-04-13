@@ -11,9 +11,9 @@ library(labelled)
 
 # Prepare appending process ----
 ## TODO: set your paths
-inpath       <- "C:/Users/Emir-/Desktop/phd/freda/data"                   # e.g. "D:/freda/raw"
-outpath      <- "C:/Users/Emir-/Desktop/phd/freda"                        # e.g. "D:/freda/work"
-pairfam_path <- "C:/Users/Emir-/Desktop/phd/data/FReDA/pairfam_v14-2-0/Data/Stata" 
+inpath       <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/FReDA"                   
+outpath      <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/"                       
+#pairfam_path <- "C:/Users/Emir-/Desktop/phd/data/FReDA/pairfam_v14-2-0/Data/Stata" 
 
 ## Wave definition ----
 start_wave <- 1   # first wave to use
@@ -25,8 +25,8 @@ end_wave   <- 7   # last wave to use
 ### (make sure id, welle, sample are included)
 ### Example: myvar <- c("id","welle","sample","sex","birthyr","edu","inc","region")
 myvar <- c("id", "pid", "welle", "sample",
-           "sex", "sex_reg", "age", "age_reg",
-           "migback", "cohort", "east", "samesex",
+           "sex", "sex_reg", "psexgen", "age", "age_reg",
+           "migback", "cohort", "east", "samesex", "nkids",
            "school", "educy", "voctrain",
            "lfstat", "sd55", "job40", 
            
@@ -46,7 +46,7 @@ myvar <- c("id", "pid", "welle", "sample",
            # Relationship status for Wave 3 (W1B)
            "pstat", "separation", "sd3", "bpa17",
            # Cohab
-           "bpa4", "bpa7", "relstat"
+           "bpa4", "bpa7", "relstat","pstat", "reldur"
            )
 
 ## Build list of FReDA files ----
