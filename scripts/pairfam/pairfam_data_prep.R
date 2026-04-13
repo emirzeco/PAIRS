@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in Germany #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 07.04.2026                                                                 #
+# Last Update: 13.04.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # # # # # #
@@ -147,12 +147,10 @@ p <- p %>%
 
 
 
-
-
 ## Benefits ----
 ### Main ----
 p <- p %>%
-  dplyr::mutate(
+  mutate(
     wohngeld = dplyr::case_when(
       as.numeric(wohngeld) %in% c(0, 7) ~ 0,
       as.numeric(wohngeld) == 1         ~ 1,
@@ -175,7 +173,7 @@ p <- p %>%
     )
   )
 
-### AGII + Soz.Hilfe + Grundischerung
+### AGII + Soz.Hilfe + Grundischerung ----
 p <- p %>%
   mutate(
     benefit_dummy = case_when(
