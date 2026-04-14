@@ -425,3 +425,145 @@ M15 <- plm(
   index = c("id", "wave"),
   model = "within"
 )
+
+
+# Different controls ----
+## M16 ----
+### M16a ----
+M16a <- plm(
+  satrelship ~ benefit_dummy +
+    relstat2 + 
+    nkidsliv + hlt1 + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+### M16b ----
+M16b <- plm(
+  satrelship ~ benefit_dummy +
+    lifesat +
+    relstat2  +
+    nkidsliv + hlt1 + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+### M16c ----
+M16c <- plm(
+  satrelship ~ benefit_dummy +
+    lifesat +
+    relstat2  +
+    nkidsliv + hlt1 + 
+    reldur + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+
+## M17 ----
+### M17a ----
+M17a <- plm(
+  satrelship ~ wohngeld +
+    relstat2  +
+    nkidsliv + hlt1 + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+
+### M17b ----
+M17b <- plm(
+  satrelship ~ wohngeld +
+    lifesat +
+    relstat2  +
+    nkidsliv + hlt1 + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+### M17c ----
+M17c <- plm(
+  satrelship ~ wohngeld +
+    lifesat +
+    relstat2  +
+    nkidsliv + hlt1 + 
+    reldur + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+
+
+
+
+# Duration ----
+## Grundsicherung ----
+p_reduc <- p_reduc %>%
+  arrange(id, wave) %>%
+  group_by(id) %>%
+  mutate(
+    grundsich_start = benefit_dummy == 1 & lag(benefit_dummy, default = 0) == 0,
+    grundsich_spell = cumsum(grundsich_start),
+    grundsich_duration = case_when(
+      benefit_dummy == 1 ~ ave(benefit_dummy, grundsich_spell, FUN = \(x) seq_along(x)) - 1,
+      benefit_dummy == 0 ~ NA_real_,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  ungroup()
+p_reduc <- p_reduc %>%
+  mutate(
+    grundsich_duration_sq = grundsich_duration^2
+  )
+
+### M18 ----
+M18 <- plm(
+  satrelship ~ grundsich_duration + grundsich_duration_sq +
+    log_hhincgcee +
+    relstat2 +
+    lfstat + p_lfstat + 
+    nkidsliv + 
+    hlt1 + 
+    reldur + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)
+
+
+## Wohngeld ----
+p_reduc <- p_reduc %>%
+  arrange(id, wave) %>%
+  group_by(id) %>%
+  mutate(
+    wohngeld_start = wohngeld == 1 & lag(wohngeld, default = 0) == 0,
+    wohngeld_spell = cumsum(wohngeld_start),
+    wohngeld_duration = case_when(
+      wohngeld == 1 ~ ave(wohngeld, wohngeld_spell, FUN = \(x) seq_along(x)) - 1,
+      wohngeld == 0 ~ NA_real_,
+      TRUE ~ NA_real_
+    ),
+    wohngeld_duration_sq = wohngeld_duration^2
+  ) %>%
+  ungroup()
+
+
+### M19 ----
+M19 <- plm(
+  satrelship ~ wohngeld_duration + wohngeld_duration_sq +
+    log_hhincgcee +
+    relstat2 +
+    lfstat + p_lfstat + 
+    nkidsliv + 
+    hlt1 + 
+    reldur + wave,
+  data = p_reduc,
+  index = c("id", "wave"),
+  model = "within"
+)

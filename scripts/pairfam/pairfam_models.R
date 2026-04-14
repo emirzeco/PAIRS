@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in Germany #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 13.04.2026                                                                 #
+# Last Update: 14.04.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # #
@@ -95,7 +95,7 @@ modelsummary::msummary(
     "Model 2d" = M2d
   ),
   
-  title = "Grundsicherng and relationship satisfaction, fixed effects analyses",
+  title = "Grundsicherung and relationship satisfaction, fixed effects analyses",
   output = "M2_pairfam.html",
   
   coef_map = c(
@@ -285,7 +285,7 @@ modelsummary::msummary(
     "Model 5d" = M5d
   ),
   
-  title = "Grundsicherng and relationship satisfaction, fixed effects analyses [In-Work sample]",
+  title = "Grundsicherung and relationship satisfaction, fixed effects analyses [In-Work sample]",
   output = "M5_pairfam.html",
   
   coef_map = c(
@@ -527,6 +527,176 @@ modelsummary::msummary(
 
 
 
+## Different controls ----
+### M16 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 16a` = "Yes",
+  `Model 16b` = "Yes",
+  `Model 16c` = "Yes",
+)
+attr(extra_rows, "position") <- "coef_end"
+
+modelsummary::msummary(
+  list(
+    "Model 16a" = M16a,
+    "Model 16b" = M16b,
+    "Model 16c" = M16c
+    ),
+  
+  title = "Grundsicherung and relationship satisfaction, fixed effects analyses [w/o income & LFS]",
+  output = "M16_pairfam.html",
+  
+  coef_map = c(
+    "benefit_dummy"               = "Grundsicherung (Grundsicherung, Sozialhilfe, AII) (0-1)",
+    
+    "lifesat"                     = "Life satisfaction (0-10)",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Grundsicherung indicates receipt of at least one means-tested benefit (Arbeitslosengeld II/Grundsicherung/Sozialhilfe)",
+    "Controls include life satisfaction, relationship status, number of kids, health status, relationship duration and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+
+
+### M17 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 17a` = "Yes",
+  `Model 17b` = "Yes",
+  `Model 17c` = "Yes",
+)
+attr(extra_rows, "position") <- "coef_end"
+
+modelsummary::msummary(
+  list(
+    "Model 17a" = M17a,
+    "Model 17b" = M17b,
+    "Model 17c" = M17c
+  ),
+  
+  title = "Wohngeld and relationship satisfaction, fixed effects analyses [w/o income & LFS]",
+  output = "M17_pairfam.html",
+  
+  coef_map = c(
+    "wohngeld"                    = "Wohngeld (0-1)",
+    
+    "lifesat"                     = "Life satisfaction (0-10)",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Controls include life satisfaction, relationship status, number of kids, health status, relationship duration and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+
+
+
+
+## Duration FE ----
+### M18-M19 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 18` = "Yes",
+  `Model 19` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 18" = M18,
+    "Model 19" = M19
+  ),
+  
+  title = "Grundsicherung/Wohngeld duration and relationship satisfaction, fixed effects analyses",
+  output = "M18-19_pairfam.html",
+  
+  coef_map = c(
+    "grundsich_duration"          = "Grundsicherung duration (waves/years) (0-12)",
+    "grundsich_duration_sq"       = "Grundsicherung duration squared (waves/years) (0-12)",
+    "wohngeld_duration"           = "Wohngeld duration (waves/years) (0-12)",
+    "wohngeld_duration_sq"        = "Wohngeld duration squared (waves/years) (0-12)",
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Controls include life satisfaction, relationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+
+
+
+
+
+
+
 # RE ----
 ## M20 ----
 extra_rows <- tibble(
@@ -614,7 +784,7 @@ modelsummary::msummary(
     "Model 21c" = M21c
   ),
   
-  title = "Grundsicherng and relationship satisfaction, random effects analyses",
+  title = "Grundsicherung and relationship satisfaction, random effects analyses",
   output = "M21_pairfam.html",
   
   coef_map = c(
@@ -977,8 +1147,8 @@ modelsummary::msummary(
 
 
 
-## Duration ----
-### M31-M32
+## Duration RE ----
+### M31-M32 ----
 extra_rows <- tibble(
   term = "Wave control",
   `Model 31` = "Yes",
@@ -993,7 +1163,7 @@ modelsummary::msummary(
     "Model 32" = M32
   ),
   
-  title = "Grundsicherung/Wohngeld duration relationship satisfaction, random effects analyses",
+  title = "Grundsicherung/Wohngeld duration and relationship satisfaction, random effects analyses",
   output = "M31-M32_pairfam.html",
   
   coef_map = c(
