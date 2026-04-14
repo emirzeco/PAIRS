@@ -261,8 +261,28 @@ rm(missings, new_var_names, vars_neg_na)
 
 
 
-
-
+## School
+# p_reduc <- p_reduc %>%
+#   mutate(
+#     school = case_when(
+#       school == 1 ~ "No degree",
+#       school %in% c(2, 3) ~ "Lower secondary",
+#       school %in% c(4, 5) ~ "Intermediate secondary",
+#       school == 6 ~ "Upper secondary (Fachhochschulreife)",
+#       school == 7 ~ "Upper secondary (Abitur)",
+#       TRUE ~ NA_character_
+#     ),
+#     school = factor(
+#       school,
+#       levels = c(
+#         "No degree",
+#         "Lower secondary",
+#         "Intermediate secondary",
+#         "Upper secondary (Fachhochschulreife)",
+#         "Upper secondary (Abitur)"
+#       )
+#     )
+#   )
 
 ## Income
 # p$hhinc <- ifelse(p$hhinc >= 0, as.numeric(p$hhinc), NA)

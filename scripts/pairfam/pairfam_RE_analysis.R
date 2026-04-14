@@ -10,15 +10,15 @@
 # # # # # # # # # # # # 
 
 # M20 (HHInc) ----
-## M20a ----
-M20a <- plm(
+## M20 ----
+M20 <- plm(
   satrelship ~ log_hhincgcee +
     age + page + sex + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_reduc,
   index = c("id", "wave"),
   model = "random"
@@ -48,11 +48,11 @@ M21c <- plm(
   satrelship ~ benefit_dummy +
     log_hhincgcee + 
     age + page + sex + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur+ wave + cohort + east,
   data = p_reduc,
   index = c("id", "wave"),
   model = "random"
@@ -72,11 +72,11 @@ M22b <- plm(
   satrelship ~ wohngeld +
     log_hhincgcee + 
     age + page + sex + school + migstatus + 
-    relstat2 + reldur +
+    relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_reduc,
   index = c("id", "wave"),
   model = "random"
@@ -98,11 +98,11 @@ M23 <- plm(
   satrelship ~ benefit_dummy +
     log_hhincgcee + 
     age + page + sex + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_employed,
   index = c("id", "wave"),
   model = "random"
@@ -114,11 +114,11 @@ M24 <- plm(
   satrelship ~ wohngeld +
     log_hhincgcee + 
     age + page + sex + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_employed,
   index = c("id", "wave"),
   model = "random"
@@ -132,11 +132,11 @@ p_men <- p_reduc %>%
 M25 <- plm(
   satrelship ~ log_hhincgcee +
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_men,
   index = c("id", "wave"),
   model = "random"
@@ -147,11 +147,11 @@ M26 <- plm(
   satrelship ~ benefit_dummy +
     log_hhincgcee + 
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_men,
   index = c("id", "wave"),
   model = "random"
@@ -162,11 +162,11 @@ M27 <- plm(
   satrelship ~ wohngeld +
     log_hhincgcee + 
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_men,
   index = c("id", "wave"),
   model = "random"
@@ -180,11 +180,11 @@ p_women <- p_reduc %>%
 M28 <- plm(
   satrelship ~ log_hhincgcee +
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_women,
   index = c("id", "wave"),
   model = "random"
@@ -195,11 +195,11 @@ M29 <- plm(
   satrelship ~ benefit_dummy +
     log_hhincgcee + 
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_women,
   index = c("id", "wave"),
   model = "random"
@@ -210,11 +210,11 @@ M30 <- plm(
   satrelship ~ wohngeld +
     log_hhincgcee + 
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_women,
   index = c("id", "wave"),
   model = "random"
@@ -243,12 +243,13 @@ p_reduc <- p_reduc %>%
 ### M31 ----
 M31 <- plm(
   satrelship ~ welfare_duration + welfare_duration_sq +
+    log_hhincgcee +
     age + page  + school + migstatus + 
-    relstat2 + reldur +
+    relstat2 +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_reduc,
   index = c("id", "wave"),
   model = "random"
@@ -273,14 +274,15 @@ p_reduc <- p_reduc %>%
 
 
 ### M32 ----
-M_duration_wohngeld <- plm(
+M32 <- plm(
   satrelship ~ wohngeld_duration + wohngeld_duration_sq +
+    log_hhincgcee +
     age + page + school + migstatus + 
-    relstat2 + reldur +
+    relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + 
     hlt1 + 
-    wave + cohort + east,
+    reldur + wave + cohort + east,
   data = p_reduc,
   index = c("id", "wave"),
   model = "random"

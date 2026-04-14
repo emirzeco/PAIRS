@@ -518,3 +518,534 @@ modelsummary::msummary(
     "Source: pairfam (W1 - W13)."
   )
 )
+
+
+
+
+
+
+
+
+
+# RE ----
+## M20 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 20` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 20" = M20
+  ),
+  
+  title = "Household income and relationship satisfaction, random effects analyses",
+  output = "M20_pairfam.html",
+  
+  coef_map = c(
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+  
+    "migstatus"                                  = "Migration status",
+  
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+## M21 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 21a` = "No",
+  `Model 21b` = "No",
+  `Model 21c` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 21a" = M21a,
+    "Model 21b" = M21b,
+    "Model 21c" = M21c
+  ),
+  
+  title = "Grundsicherng and relationship satisfaction, random effects analyses",
+  output = "M21_pairfam.html",
+  
+  coef_map = c(
+    "benefit_dummy"               = "Grundsicherung (Grundsicherung, Sozialhilfe, AII) (0-1)",
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+    
+    "migstatus"                                  = "Migration status",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Grundsicherung indicates receipt of at least one means-tested benefit (Arbeitslosengeld II/Grundsicherung/Sozialhilfe)",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+## M22 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 22a` = "No",
+  `Model 22b` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 22a" = M22a,
+    "Model 22b" = M22b
+    ),
+  
+  title = "Wohngeld and relationship satisfaction, random effects analyses",
+  output = "M22_pairfam.html",
+  
+  coef_map = c(
+    "wohngeld"                    = "Wohngeld (0-1)",
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+    
+    "migstatus"                                  = "Migration status",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+
+
+
+## In-Work ----
+### M23-M24 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 23` = "Yes",
+  `Model 24` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 23" = M24,
+    "Model 24" = M23
+  ),
+  
+  title = "Grundsicherung/Wohngeld and relationship satisfaction, random effects analyses [In-Work sample]",
+  output = "M23-M24_pairfam.html",
+  
+  coef_map = c(
+    "benefit_dummy"               = "Grundsicherung (Grundsicherung, Sozialhilfe, AII) (0-1)",
+    "wohngeld"                    = "Wohngeld (0-1)",
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+    
+    "migstatus"                                  = "Migration status",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "In-Work anchor only sample",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+## Men ----
+### M25-M27 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 25` = "Yes",
+  `Model 26` = "Yes",
+  `Model 27` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 25" = M25,
+    "Model 26" = M26,
+    "Model 27" = M27
+  ),
+  
+  title = "Combined model relationship satisfaction, random effects analyses [Men only sample]",
+  output = "M25-M27_pairfam.html",
+  
+  coef_map = c(
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    "benefit_dummy"               = "Grundsicherung (Grundsicherung, Sozialhilfe, AII) (0-1)",
+    "wohngeld"                    = "Wohngeld (0-1)",
+    
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+    
+    "migstatus"                                  = "Migration status",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Men only sample",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+
+## Women ----
+### M28-M30 ----
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 28` = "Yes",
+  `Model 29` = "Yes",
+  `Model 30` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 28" = M28,
+    "Model 29" = M29,
+    "Model 30" = M30
+  ),
+  
+  title = "Combined model relationship satisfaction, random effects analyses [Women only sample]",
+  output = "M28-M30_pairfam.html",
+  
+  coef_map = c(
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+    "benefit_dummy"               = "Grundsicherung (Grundsicherung, Sozialhilfe, AII) (0-1)",
+    "wohngeld"                    = "Wohngeld (0-1)",
+    
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+    
+    "migstatus"                                  = "Migration status",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Women only sample",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
+
+
+
+
+## Duration ----
+### M31-M32
+extra_rows <- tibble(
+  term = "Wave control",
+  `Model 31` = "Yes",
+  `Model 32` = "Yes"
+)
+attr(extra_rows, "position") <- "coef_end"
+
+
+modelsummary::msummary(
+  list(
+    "Model 31" = M31,
+    "Model 32" = M32
+  ),
+  
+  title = "Grundsicherung/Wohngeld duration relationship satisfaction, random effects analyses",
+  output = "M31-M32_pairfam.html",
+  
+  coef_map = c(
+    "welfare_duration"            = "Grundsicherung duration (waves/years) (0-12)",
+    "welfare_duration_sq"         = "Grundsicherung duration squared (waves/years) (0-12)",
+    "wohngeld_duration"           = "Wohngeld duration (waves/years) (0-12)",
+    "wohngeld_duration_sq"        = "Wohngeld duration squared (waves/years) (0-12)",
+    "log_hhincgcee"               = "Log Net Equivalized Household Income (GCEE)",
+
+    "age"                         = "Age",
+    "page"                        = "Partner age",
+    "sexMale"                     = "Male (Ref.: Female)",
+    
+    "schoolLower secondary"                      = "Lower secondary",
+    "schoolIntermediate secondary"               = "Intermediate secondary",
+    "schoolUpper secondary (Fachhochschulreife)" = "Upper secondary (Fachhochschulreife)",
+    "schoolUpper secondary (Abitur)"             = "Upper secondary (Abitur)",
+    
+    "migstatus"                                  = "Migration status",
+    
+    "relstat2Married"             = "Married (Ref: Cohabiting)",
+    
+    "lfstatRetired"               = "Retired (Ref: Parental leave)",
+    "lfstatUnemployed"            = "Unemployed",
+    "lfstatFull-time employed"    = "Full-time employed",
+    "lfstatPart-time employed"    = "Part-time employed",
+    "lfstatMarginal employment"   = "Marginal employment",
+    "lfstatSelf-employed"         = "Self-employed",
+    
+    "p_lfstatRetired"             = "Retired (partner) (Ref: Parental leave)",
+    "p_lfstatUnemployed"          = "Unemployed (p)",
+    "p_lfstatFull-time employed"  = "Full-time employed (p)",
+    "p_lfstatPart-time employed"  = "Part-time employed (p)",
+    "p_lfstatMarginal employment" = "Marginal employment (p)",
+    "p_lfstatSelf-employed"       = "Self-employed (p)",
+    
+    "nkidsliv"                    = "Number of kids (0-10)",
+    "hlt1"                        = "Health status (1-5)",
+    
+    "reldur"                      = "Relationship duration (months) (0-522)",
+    "cohort"                      = "Cohort",
+    "east"                        = "East"
+  ),
+  
+  add_rows = extra_rows,
+  estimate  = "{estimate}{stars}",
+  stars = c( "#"  = 0.1, '*' = .05, '**' = .01, '***' = .001),
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  notes = c(
+    "Notes: # p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001. Standard errors in parentheses.",
+    "Controls include age, partner’s age, sex, highest school degree, elationship status, labor force status, partner’s labor force status, number of kids, health status, relationship duration cohort, region and wave",
+    "Source: pairfam (W1 - W13)."
+  )
+)
