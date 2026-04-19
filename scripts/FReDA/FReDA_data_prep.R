@@ -217,20 +217,20 @@ f <- f %>%
 f <- f %>%
   mutate(
     lfstat = case_when(
-      lfstat_filled  == 2 ~ "Parental leave",
-      lfstat_filled  == 6 ~ "Retired",
-      lfstat_filled  %in% c(3, 4, 5, 11) ~ "Unemployed",
       lfstat_filled  == 7 ~ "Full-time employed",
       lfstat_filled  == 8 ~ "Part-time employed",
       lfstat_filled  == 9 ~ "Marginal employment",
       lfstat_filled  == 10 ~ "Self-employed",
+      lfstat_filled  == 2 ~ "Parental leave",
+      lfstat_filled  == 6 ~ "Retired",
+      lfstat_filled  %in% c(3, 4, 5, 11) ~ "Unemployed",
       TRUE ~ NA_character_
     ),
     lfstat = factor(lfstat,
-                    levels = c("Parental leave", "Retired", "Unemployed",
-                               "Full-time employed", "Part-time employed",
-                               "Marginal employment", "Self-employed")
-                    )
+                    levels = c("Full-time employed",
+                               "Part-time employed",
+                               "Marginal employment", "Self-employed",
+                               "Unemployed", "Parental leave", "Retired"))
     )
 
 ## Income ----
@@ -333,7 +333,7 @@ missings <- c(
   #"lifesat",                       # Life satisfaction
   #"nkids",                         # children in HH 
   #"pmrd",                          # Partner lives in household
-  "lfstat", 
+  #"lfstat", 
   
   "log_hhincgcee"
   #"log_hhincoecd",

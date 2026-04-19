@@ -57,21 +57,9 @@ M2b <- plm(
   model = "within"
 )
 
-
-## M2c ----
-M2c <- plm(
-  satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat,
-  data = f_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
-
-
 ## M2d ----
 M2d <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat +
@@ -100,19 +88,9 @@ M3b <- plm(
   model = "within"
 )
 
-## M3c ----
-M3c <- plm(
-  satrelship ~ wohngeld +
-    log_hhincgcee + lifesat,
-  data = f_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
-
 ## M3d ----
 M3d <- plm(
   satrelship ~ wohngeld +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat +
@@ -136,9 +114,8 @@ f_employed <- f_reduc %>%
 
 M4 <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     log_hhincgcee + 
-    relstat2  +
+    relstat2 + 
     lfstat +
     wave,
   data = f_reduc,
@@ -148,9 +125,8 @@ M4 <- plm(
 
 M5 <- plm(
   satrelship ~ wohngeld +
-    lifesat +
     log_hhincgcee + 
-    relstat2  +
+    relstat2 + 
     lfstat +
     wave,
   data = f_reduc,
@@ -172,7 +148,6 @@ M6 <- plm(
 
 M7 <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat +
@@ -184,7 +159,6 @@ M7 <- plm(
 
 M8 <- plm(
   satrelship ~ wohngeld +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat +
@@ -209,7 +183,6 @@ M9 <- plm(
 
 M10 <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat +
@@ -221,7 +194,6 @@ M10 <- plm(
 
 M11 <- plm(
   satrelship ~ wohngeld +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat +
