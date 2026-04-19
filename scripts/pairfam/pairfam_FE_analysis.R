@@ -89,7 +89,7 @@ M2b <- plm(
 ## M2c ----
 M2c <- plm(
   satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat,
+    log_hhincgcee,
   data = p_reduc,
   index = c("id", "wave"),
   model = "within"
@@ -99,7 +99,6 @@ M2c <- plm(
 ## M2d ----
 M2d <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     log_hhincgcee + 
     relstat2  +
     lfstat + p_lfstat + 
@@ -138,7 +137,7 @@ M3b <- plm(
 ## M3c ----
 M3c <- plm(
   satrelship ~ wohngeld +
-    log_hhincgcee + lifesat,
+    log_hhincgcee,
   data = p_reduc,
   index = c("id", "wave"),
   model = "within"
@@ -148,7 +147,7 @@ M3c <- plm(
 ## M3d ----
 M3d <- plm(
   satrelship ~ wohngeld +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 + 
@@ -220,19 +219,11 @@ M5b <- plm(
   model = "within"
 )
 
+
 ### M5c ----
 M5c <- plm(
   satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat,
-  data = p_employed,
-  index = c("id", "wave"),
-  model = "within"
-)
-
-### M5d ----
-M5d <- plm(
-  satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat +
+    log_hhincgcee + 
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv +
@@ -264,16 +255,7 @@ M6b <- plm(
 ### M6c ----
 M6c <- plm(
   satrelship ~ wohngeld +
-    log_hhincgcee + lifesat,
-  data = p_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
-
-### M6d ----
-M6d <- plm(
-  satrelship ~ wohngeld +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 + 
@@ -316,7 +298,7 @@ M7 <- plm(
 ## M8 (Grundsicherung) ----
 M8 <- plm(
   satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 + 
@@ -329,7 +311,7 @@ M8 <- plm(
 ## M9 (Wohngeld) ----
 M9 <- plm(
   satrelship ~ wohngeld +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 + 
@@ -359,7 +341,7 @@ M10 <- plm(
 ## M11 ----
 M11 <- plm(
   satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 +
@@ -372,7 +354,7 @@ M11 <- plm(
 ## M12 ----
 M12 <- plm(
   satrelship ~ wohngeld +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 +
@@ -403,7 +385,7 @@ M13 <- plm(
 ## M14 ----
 M14 <- plm(
   satrelship ~ benefit_dummy +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 + 
@@ -416,7 +398,7 @@ M14 <- plm(
 ## M15 ----
 M15 <- plm(
   satrelship ~ wohngeld +
-    log_hhincgcee + lifesat +
+    log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
     nkidsliv + hlt1 + 
@@ -442,7 +424,6 @@ M16a <- plm(
 ### M16b ----
 M16b <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     relstat2  +
     nkidsliv + hlt1 + wave,
   data = p_reduc,
@@ -453,7 +434,6 @@ M16b <- plm(
 ### M16c ----
 M16c <- plm(
   satrelship ~ benefit_dummy +
-    lifesat +
     relstat2  +
     nkidsliv + hlt1 + 
     reldur + wave,
@@ -478,7 +458,6 @@ M17a <- plm(
 ### M17b ----
 M17b <- plm(
   satrelship ~ wohngeld +
-    lifesat +
     relstat2  +
     nkidsliv + hlt1 + wave,
   data = p_reduc,
@@ -489,7 +468,6 @@ M17b <- plm(
 ### M17c ----
 M17c <- plm(
   satrelship ~ wohngeld +
-    lifesat +
     relstat2  +
     nkidsliv + hlt1 + 
     reldur + wave,
@@ -502,68 +480,98 @@ M17c <- plm(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Duration ----
 ## Grundsicherung ----
-p_reduc <- p_reduc %>%
-  arrange(id, wave) %>%
-  group_by(id) %>%
-  mutate(
-    grundsich_start = benefit_dummy == 1 & lag(benefit_dummy, default = 0) == 0,
-    grundsich_spell = cumsum(grundsich_start),
-    grundsich_duration = case_when(
-      benefit_dummy == 1 ~ ave(benefit_dummy, grundsich_spell, FUN = \(x) seq_along(x)) - 1,
-      benefit_dummy == 0 ~ NA_real_,
-      TRUE ~ NA_real_
-    )
-  ) %>%
-  ungroup()
-p_reduc <- p_reduc %>%
-  mutate(
-    grundsich_duration_sq = grundsich_duration^2
-  )
-
-### M18 ----
-M18 <- plm(
-  satrelship ~ grundsich_duration + grundsich_duration_sq +
-    log_hhincgcee +
-    relstat2 +
-    lfstat + p_lfstat + 
-    nkidsliv + 
-    hlt1 + 
-    reldur + wave,
-  data = p_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
-
-
-## Wohngeld ----
-p_reduc <- p_reduc %>%
-  arrange(id, wave) %>%
-  group_by(id) %>%
-  mutate(
-    wohngeld_start = wohngeld == 1 & lag(wohngeld, default = 0) == 0,
-    wohngeld_spell = cumsum(wohngeld_start),
-    wohngeld_duration = case_when(
-      wohngeld == 1 ~ ave(wohngeld, wohngeld_spell, FUN = \(x) seq_along(x)) - 1,
-      wohngeld == 0 ~ NA_real_,
-      TRUE ~ NA_real_
-    ),
-    wohngeld_duration_sq = wohngeld_duration^2
-  ) %>%
-  ungroup()
-
-
-### M19 ----
-M19 <- plm(
-  satrelship ~ wohngeld_duration + wohngeld_duration_sq +
-    log_hhincgcee +
-    relstat2 +
-    lfstat + p_lfstat + 
-    nkidsliv + 
-    hlt1 + 
-    reldur + wave,
-  data = p_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
+# p_reduc <- p_reduc %>%
+#   arrange(id, wave) %>%
+#   group_by(id) %>%
+#   mutate(
+#     grundsich_start = benefit_dummy == 1 & lag(benefit_dummy, default = 0) == 0,
+#     grundsich_spell = cumsum(grundsich_start),
+#     grundsich_duration = case_when(
+#       benefit_dummy == 1 ~ ave(benefit_dummy, grundsich_spell, FUN = \(x) seq_along(x)) - 1,
+#       benefit_dummy == 0 ~ NA_real_,
+#       TRUE ~ NA_real_
+#     )
+#   ) %>%
+#   ungroup()
+# p_reduc <- p_reduc %>%
+#   mutate(
+#     grundsich_duration_sq = grundsich_duration^2
+#   )
+# 
+# ### M18 ----
+# M18 <- plm(
+#   satrelship ~ grundsich_duration + grundsich_duration_sq +
+#     log_hhincgcee +
+#     relstat2 +
+#     lfstat + p_lfstat + 
+#     nkidsliv + 
+#     hlt1 + 
+#     reldur + wave,
+#   data = p_reduc,
+#   index = c("id", "wave"),
+#   model = "within"
+# )
+# 
+# 
+# ## Wohngeld ----
+# p_reduc <- p_reduc %>%
+#   arrange(id, wave) %>%
+#   group_by(id) %>%
+#   mutate(
+#     wohngeld_start = wohngeld == 1 & lag(wohngeld, default = 0) == 0,
+#     wohngeld_spell = cumsum(wohngeld_start),
+#     wohngeld_duration = case_when(
+#       wohngeld == 1 ~ ave(wohngeld, wohngeld_spell, FUN = \(x) seq_along(x)) - 1,
+#       wohngeld == 0 ~ NA_real_,
+#       TRUE ~ NA_real_
+#     ),
+#     wohngeld_duration_sq = wohngeld_duration^2
+#   ) %>%
+#   ungroup()
+# 
+# 
+# ### M19 ----
+# M19 <- plm(
+#   satrelship ~ wohngeld_duration + wohngeld_duration_sq +
+#     log_hhincgcee +
+#     relstat2 +
+#     lfstat + p_lfstat + 
+#     nkidsliv + 
+#     hlt1 + 
+#     reldur + wave,
+#   data = p_reduc,
+#   index = c("id", "wave"),
+#   model = "within"
+# )

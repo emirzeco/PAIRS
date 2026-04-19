@@ -85,39 +85,39 @@ p <- p %>%
 p <- p %>%
   mutate(
     lfstat = case_when(
-      lfs == 2            ~ "Parental leave",
-      lfs == 6            ~ "Retired",
-      lfs %in% c(3, 4, 7) ~ "Unemployed",
-      lfs == 9            ~ "Full-time employed",
-      lfs == 10           ~ "Part-time employed",
-      lfs %in% c(11, 13)  ~ "Marginal employment",
-      lfs == 12           ~ "Self-employed",
+      lfs == 9               ~ "Full-time employed",
+      lfs == 10              ~ "Part-time employed",
+      lfs %in% c(11, 13)     ~ "Marginal employment",
+      lfs == 12              ~ "Self-employed",
+      lfs == 4               ~ "Unemployed",
+      lfs == 6               ~ "Retired",
+      lfs %in% c(2, 3, 5, 7) ~ "Inactive",
       TRUE                ~ NA_character_
     ),
     lfstat = factor(lfstat,
-                    levels = c("Parental leave", "Retired", "Unemployed",
-                               "Full-time employed", "Part-time employed",
-                               "Marginal employment", "Self-employed"))
-  )
+                    levels = c("Full-time employed", "Part-time employed",
+                               "Marginal employment", "Self-employed",
+                               "Unemployed", "Retired", "Inactive"))
+    )
 table(p$lfstat, p$wave, useNA = "ifany")
 
 ### Partner ----
 p <- p %>%
   mutate(
     p_lfstat = case_when(
-      plfs == 2            ~ "Parental leave",
-      plfs == 6            ~ "Retired",
-      plfs %in% c(3, 4, 7) ~ "Unemployed",
-      plfs == 9            ~ "Full-time employed",
-      plfs == 10           ~ "Part-time employed",
-      plfs %in% c(11, 13)  ~ "Marginal employment",
-      plfs == 12           ~ "Self-employed",
-      TRUE                ~ NA_character_
+      plfs == 9              ~ "Full-time employed",
+      plfs == 10             ~ "Part-time employed",
+      plfs %in% c(11, 13)    ~ "Marginal employment",
+      plfs == 12             ~ "Self-employed",
+      plfs == 4              ~ "Unemployed",
+      plfs == 6              ~ "Retired",
+      plfs %in% c(2,3, 5, 7) ~ "Inactive",
+      TRUE                   ~ NA_character_
     ),
     p_lfstat = factor(p_lfstat,
-                    levels = c("Parental leave", "Retired", "Unemployed",
-                               "Full-time employed", "Part-time employed",
-                               "Marginal employment", "Self-employed"))
+                      levels = c("Full-time employed", "Part-time employed",
+                                 "Marginal employment", "Self-employed",
+                                 "Unemployed", "Retired", "Inactive"))
   )
 table(p$p_lfstat, p$wave, useNA = "ifany")
 
@@ -141,7 +141,6 @@ p <- p %>%
 #     ),
 #     log_hhincoecd = log1p(hhincoecd)      ## HH-Income (Nettoäquivalenzeinkommen, OECD)
 #   ) 
-
 
 
 
