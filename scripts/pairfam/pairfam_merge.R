@@ -64,8 +64,8 @@ w14 <- bind_rows(w14_capi, w14_cawi, w14_papi) %>%
 
 # Long format ----
 #path <- "/posit_share/home/zecovic-e/data/pairfam"
-#path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam"
-path <- "/posit_share/home/zecovic-e/PAIRS/data/pairfam/"
+path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/pairfam"
+#path <- "/posit_share/home/zecovic-e/PAIRS/data/pairfam/"
 files <- paste0("anchor", 1:14, ".dta")
 files
 
@@ -76,10 +76,12 @@ vars <- c(
   "id", "pid", "wave", "sample",        # ID, PID, Wave, Sample
   "sex_gen", "psex_geg",                # Sex (+partner)
   "age", "page",                        # Age/Partner Age
-  "k1age", "k2age", "k3age",            # Children Age
+  "ykage", "k1age", "k2age", "k3age",   # Children Age
   "cohort", "migstatus", "pmigstatus",  # Birth cohort/ Mig.status/ Partner Mig.status
   "east",                               # East Germany
   "homosex", "homosex_new",             # Anchor's sexual orientation
+  
+  "crn20i1", "crn20i2", "crn20i3", "crn20i4", 
   
   "sat3",                               # Relationship satisfaction
   "sat4",                               # Relationship satisfaction (partner)
@@ -89,12 +91,13 @@ vars <- c(
   "meetdur",                            # Months since anchor and current partner got to know each other  
   "reldur", "cohabdur", "mardur",       # Duration of current relationship, cohabitation and marriage
   
-  "nkidsliv", "childmrd",               # Number of all kids living with anchor / Number of children living in household
+  "nkidsliv", "nkids", "childmrd",      # Number of all kids living with anchor / Number of children living in household
   "hhcomp", "hhsizemrd",                # Household composition                 / Household size
   "pmrd",                               # Partner lives in household
 
   "enrol", "penrol",                    # Enrollment in school or vocational qualification at time of interview (anchor, partner)
   "school", "pschool",                  # Highest school degree (+partner)
+  "isced",
   "vocat", "pvocat",                    # Highest vocational degree (+partner)
   "yeduc", "pyeduc",                    # Years of schooling (+partner)
   "lfs", "plfs",                        # Labor force status (anchor, partner)
