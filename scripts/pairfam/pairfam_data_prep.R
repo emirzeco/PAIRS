@@ -36,8 +36,8 @@ new_var_names <- c(sex           = "sex_gen",
                    lifesat       = "sat6",
                    
                    sub_fin_hh    = "inc28",   # Overall, how satisfied are you with your household's financial situation?
-                   depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
-                   strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
+                   #depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
+                   #strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
                    
                    wohngeld      = "inc10i4",  # Wohngeld oder Lastenzuschuss
                    sozhilfe      = "inc10i7",  # Sozialhilfe
@@ -51,6 +51,27 @@ p <- rename(p,
 
 
 # Recoding ----
+## Age ----
+## Age of anchor (anchor)
+p <- p %>%
+  mutate(
+    agegrp = case_when(
+      age >= 15 & age <= 20 ~ 0,
+      age >= 21 & age <= 25 ~ 1,
+      age >= 26 & age <= 30 ~ 2,
+      age >= 31 & age <= 35 ~ 3,
+      age >= 36 & age <= 40 ~ 4,
+      age >= 41 & age <= 45 ~ 5,
+      age >= 46             ~ 6,
+      TRUE                  ~ NA_real_
+    ),
+    agegrp = factor(
+      agegrp,
+      levels = 0:6,
+      labels = c("15-20", "21-25", "26-30", "31-35", "36-40", "41-45", "46+")
+    )
+  )
+
 ## Sex ----
 p <- p %>%
   mutate(
@@ -226,9 +247,11 @@ p <- p %>%
 
 # Missings ----
 missings <- c(
-"grundsich", "aII", "sozhilfe", "wohngeld",
+#"grundsich", "aII", "sozhilfe",
+"wohngeld",
 "benefit_dummy",
-"satrelship", "p_satrelship",   # Relationship satisfaction
+"satrelship",
+#"p_satrelship",   # Relationship satisfaction
 
 "relstat2",
 "reldur",
@@ -239,12 +262,12 @@ missings <- c(
 #"pmrd",                        # Partner lives in household
 "lfstat", "p_lfstat",           # Labor force status (anchor, partner)
 
-"log_hhincgcee",
+"log_hhincgcee"
 #"log_hhincoecd",
 # "hhincnet",
 #"sub_fin_hh",
 
-"hlt1"
+#"hlt1"
 # "pcs",          # Summary score physical health
 # "mcs"           # Summary score mental health
 )

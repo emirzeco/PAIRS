@@ -89,7 +89,7 @@ M2b <- plm(
 ## M2c ----
 M2c <- plm(
   satrelship ~ benefit_dummy +
-    log_hhincgcee,
+    log_hhincgcee + agegrp,
   data = p_reduc,
   index = c("id", "wave"),
   model = "within"
@@ -100,10 +100,9 @@ M2c <- plm(
 M2d <- plm(
   satrelship ~ benefit_dummy +
     log_hhincgcee + 
-    relstat2  +
+    relstat2 + agegrp +
     lfstat + p_lfstat + 
-    nkidsliv + hlt1 + 
-    reldur + wave,
+    nkidsliv + hlt1,
   data = p_reduc,
   index = c("id", "wave"),
   model = "within"

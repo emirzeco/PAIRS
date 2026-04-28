@@ -105,6 +105,8 @@ vars <- c(
   "hhincgcee", "hhincoecd",             # HH-Income (GCEE, OECD)
   "incnet", "hhincnet",                 # Net personal, Net HH
   "inc28",                              # Zufriedenheit mit finanzieller Situation des Haushalts
+  "inc26i2",
+  "inc26i3",
   "inc27i2",                            # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
   "inc27i3",                            # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
   
@@ -124,7 +126,8 @@ vars <- c(
   
   "sat6",                               # Life satisfaction 
   "pcs", "mcs",                         # Summary score physical and mental health
-  "hlt1"                                # Gesundheitszustand letzte 4 Wochen
+  "hlt1",                               # Gesundheitszustand letzte 4 Wochen
+  "per1i6"
   )
 
 
