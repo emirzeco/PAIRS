@@ -28,6 +28,10 @@ options(max.print=10000)
 ## Load ----
 p <-haven::read_dta("data/pairfam_long.dta")
 #p <-haven::read_dta("/posit_share/home/zecovic-e/PAIRS/data/pairfam_long.dta")
+b <- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/pairfam_v14-2-0/Data/Stata/biopart.dta")
+b_2<- haven::read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/pairfam_v14-2-0/Data/Stata/bioact.dta")
+
+
 
 ## Rename ----
 new_var_names <- c(sex           = "sex_gen",
@@ -36,8 +40,8 @@ new_var_names <- c(sex           = "sex_gen",
                    lifesat       = "sat6",
                    
                    sub_fin_hh    = "inc28",   # Overall, how satisfied are you with your household's financial situation?
-                   depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
-                   strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
+                   #depriv_fin_hh = "inc27i2", # HH: Wir müssen häufig verzichten, wegen finanzieller Einschränkungen (W2-W14)
+                   #strain_fin_hh = "inc27i3", # HH: Bei uns ist das Geld meistens knapp                              (W2-W14)
                    
                    wohngeld      = "inc10i4",  # Wohngeld oder Lastenzuschuss
                    sozhilfe      = "inc10i7",  # Sozialhilfe
@@ -238,6 +242,91 @@ p <- p %>%
 #   )
 
 
+# Povertiy
+## Objective povertiy ----
+p <- p %>%
+  mutate(
+    hhincoecd = DescTools::Winsorize(
+      hhincoecd,
+      val = quantile(
+        hhincoecd,
+        probs = c(0.001, 0.999),
+        na.rm = TRUE
+      )
+    ),
+    de_oecd_median = case_when(
+      wave == 4  ~ 19592,
+      wave == 5  ~ 19545,
+      wave == 6  ~ 19712,
+      wave == 7  ~ 20644,
+      wave == 8  ~ 21263,
+      wave == 9  ~ 21906,
+      wave == 10 ~ 22647,
+      wave == 11 ~ 23504,
+      wave == 12 ~ 25999,
+      TRUE ~ NA_real_
+    ),
+    de_oecd_median = de_oecd_median / 12,
+    oecd_mean = NA_real_,
+    devoecdmedian = hhincoecd - de_oecd_median,
+    oecd60 = 0.60 * de_oecd_median,
+    devoecd60_per = (hhincoecd - oecd60) / oecd60 * 100
+  ) %>%
+  group_by(wave) %>%
+  mutate(
+    oecd_mean = mean(hhincoecd, na.rm = TRUE),
+    sd2devoecd60 = sd(devoecd60_per, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    devsd2devoecd60_per =
+      (hhincoecd - sd2devoecd60) / sd2devoecd60 * 100,
+    povertySD_cat = case_when(
+      devsd2devoecd60_per <= 0 ~ 2,
+      devsd2devoecd60_per > 0 & devsd2devoecd60_per <= 100 ~ 1,
+      devsd2devoecd60_per > 100 ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
+
+
+
+
+## Subjective povertiy ----
+p <- p %>%
+  mutate(
+    ecodep_own = {
+      items <- pick(inc26i2, inc26i3)
+      n_valid <- rowSums(!is.na(items))
+      
+      if_else(
+        n_valid == 2,
+        rowMeans(items, na.rm = TRUE),
+        NA_real_
+      )
+    },
+    ecodep = {
+      items <- pick(inc27i2, inc27i3)
+      n_valid <- rowSums(!is.na(items))
+      
+      if_else(
+        n_valid == 2,
+        rowMeans(items, na.rm = TRUE),
+        NA_real_
+      )
+    },
+    ecodep = if_else(
+      is.na(ecodep),
+      ecodep_own,
+      ecodep
+    )
+  ) %>%
+  arrange(id, wave)
+
+
+
+
+
 ## Benefits ----
 ### Main ----
 p <- p %>%
@@ -268,9 +357,9 @@ p <- p %>%
 p <- p %>%
   mutate(
     benefit_dummy = case_when(
-      aII         %in% c(0, 7) &
-        grundsich %in% c(0, 7) &
-        sozhilfe  %in% c(0, 7) ~ 0,
+      aII == 0 &
+        grundsich == 0 &
+        sozhilfe  == 0 ~ 0,
       aII == 1 | grundsich == 1 | sozhilfe == 1 ~ 1,
       TRUE ~ NA_real_
     )
@@ -279,17 +368,21 @@ p <- p %>%
 
 # Parental Self-Efficay ----
 ## Reverse crn20i4 ----
-p$crn20i4_r <- p$crn20i4
-p$crn20i4_r[p$crn20i4 == 1] <- 5
-p$crn20i4_r[p$crn20i4 == 2] <- 4
-p$crn20i4_r[p$crn20i4 == 4] <- 2
-p$crn20i4_r[p$crn20i4 == 5] <- 1
-
+p <- p %>%
+  mutate(
+    crn20i4_r = case_when(
+      crn20i4 == 1 ~ 5,
+      crn20i4 == 2 ~ 4,
+      crn20i4 == 3 ~ 3,
+      crn20i4 == 4 ~ 2,
+      crn20i4 == 5 ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
 
 
 ## Scale ----
 p <- p %>%
-  arrange(id, wave) %>%
   mutate(
     help = rowSums(!is.na(pick(
       crn20i1, crn20i2, crn20i3, crn20i4_r
@@ -351,6 +444,10 @@ p <- p %>%
   ) %>%
   filter(pycount_r > 1) %>%
   ungroup()
+
+# Wave 1-3
+p <- p %>%
+  filter(wave > 3) # Keep only starting wave4
 
 
 # Missings ----
