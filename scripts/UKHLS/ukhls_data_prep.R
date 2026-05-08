@@ -1,304 +1,317 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# Note: The data file produced will be at the individual level and cover all ages, irrespective of the variables requested  # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# R code for                                                                              # 
+# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in UK      #
+# Author: Emir Zecovic                                                                    #
+# Last Update: 07.05.2026                                                                 #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Sample Code for your request:  49273f34301f49f08c202efda20e346c
-# Note: You can retrieve your code at any time using this
-# URL: https://www.understandingsociety.ac.uk/code-creator/syntax?retrieval_id=7a16ac7f042646e1852db80470418bed
+# # # # # # # # # # #
+# DATA PREP UKHLS   #
+# # # # # # # # # # #  
 
 # Setup ----
-rm(list=ls())
+## Packages ----
+# if ("convenience" %in% rownames(installed.packages()) ==F) {
+#   devtools::install_github("ratsupaltuf/convenience", force=T)
+# }
 
-## WD ----
-## Replace "where" with the file path of the working folder
-## (where any temporary files created will be stored, eg: c:/ukhls/temp
-setwd("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS")
-
-## UK ----
-## Replace "where" with the folderpath where the data has been downloaded and unzipped
-## eg: c:/ukhls_data/UKDA-6614-stata/stata/stata13_se/ukhls
-ukhls <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls"
-
-## Nurse ----
-## Replace "where" with the folderpath where the nurse data has been downloaded and unzipped
-## eg: c:/ukhls_data/UKDA-7261-stata/stata/stata13_se/
-# ukhls_nurse <- "where/UKDA-7261-stata/stata/stata13_se/"
-
-## Outpath ----
-## Replace "where" with the filepath of the folder where you want to store the final dataset produced
-## eg: c:/ukhls/results
-outputpath <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data"
-
-## The file produced will be named as below.
-## If you want to change the name do it here.
-outputfilename <- "UKHLS_long"
-
-## Waves ----
-## By default the data will be extracted from the waves whose letter prefixes are written below, and merged.
-## If you want to a different selection of waves, make the change here
-allWaves <- c("a b c d e f g h i j k l m n o")
-
-## Indall ----
-## These variables from the indall files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-indallvars <- c("age_dv butype country ethn_dv ff_ivlolw gor_dv hhsize hidp iviolw marstat mastat_dv nchild_dv pidp pno ppsex psnen01_lw psnen01_xw psnen91_lw psnen91_xw psnen99_lw psnen99_xw psneng2_lw psneng2_xw psnenub_lw psnenub_xw psnenui_lw psnenui_xw psnenus_lw psnenus_xw psu racel_dv sex sex_dv strata urban_dv")
-
-## Indresp ----
-## These variables from the indresp files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-indvars <- c("age_dv benbase1 benbase2 benbase3 benbase4 benbase96 benctc bendis1 bendis10 bendis11 bendis12 bendis13 bendis14 bendis15 bendis16 bendis2 bendis3 bendis4 bendis5 bendis6 bendis7 bendis8 bendis9 bendis96 bendis97 benhou1 benhou2 benhou3 benhou4 benhou5 benhou6 benhou7 benhou8 benhou9 benhou96 bentax1 bentax10 bentax2 bentax3 bentax4 bentax5 bentax6 bentax7 bentax8 bentax9 bentax96 benunemp1 benunemp2 benunemp3 benunemp4 benunemp5 benunemp6 benunemp7 benunemp96 btype1 btype10 btype11 btype12 btype13 btype14 btype2 btype3 btype4 btype5 btype6 btype7 btype8 btype9 btype96 butype cohabn country ethn_dv ff_emplw ff_ivlolw ffbrfedlw fimngrs_dv fimnlabgrs_dv fimnnet_dv fimnsben_dv fisby ftexw gor_dv hhsize hhtype_dv hidp ind5mus_lw ind5mus_xw indbd91_lw indbdub_lw indin01_lw indin01_xw indin91_lw indin91_xw indin99_lw indin99_xw inding2_lw inding2_xw indinub_lw indinub_xw indinui_lw indinui_xw indinus_lw indinus_xw indns91_lw indnsub_lw indpxg2_xw indpxub_lw indpxub_xw indpxui_lw indpxui_xw indpxus_lw indpxus_xw indscg2_xw indscub_lw indscub_xw indscui_lw indscui_xw indscus_lw indscus_xw iviolw jbstat marstat mastat_dv mlstat nbornlw nchild_dv othben1 othben10 othben2 othben3 othben4 othben5 othben6 othben7 othben8 othben9 othben96 othben97 pbnft1 pbnft10 pbnft11 pbnft12 pbnft13 pbnft14 pbnft15 pbnft16 pbnft17 pbnft18 pbnft19 pbnft2 pbnft3 pbnft4 pbnft5 pbnft6 pbnft7 pbnft8 pbnft9 pbnft96 pidp pno ppsex prfitb psu racel_dv scdassat_dv scdascoh_dv scghq1_dv screlhappy sclfsato sex sex_dv strata tenure_dv ukborn urban_dv")
-
-## Child ----
-## These variables from the child files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-chvars <- c("age_dv chddvg2_xw chddvub_lw chddvub_xw chddvui_lw chddvui_xw country gor_dv hhsize hidp iviolw pidp pno ppsex psnen01_lw psnen91_lw psneng2_lw psneng2_xw psnenub_lw psnenub_xw psnenui_lw psnenui_xw psnenus_lw psnenus_xw psu sex sex_dv strata urban_dv")
-
-## HH ----
-## These variables from the hhresp files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-hhvars <- c("country fihhmnnet1_dv fihhmnprben_dv gor_dv hhden01_xw hhden91_xw hhden99_xw hhdeng2_xw hhdenub_xw hhdenui_xw hhdenus_xw hhsize hhtype_dv hidp hsivlw ieqmoecd_dv nkids_dv psu strata tenure_dv urban_dv xpgaslw xpleclw")
-
-## Youth ----
-## These variables from the youth files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-youthvars <- c("age_dv country ethn_dv gor_dv hidp pidp pno psu racel_dv sex sex_dv strata urban_dv ypsmlw ypwklw ythscg2_xw ythscub_xw ythscui_xw ythscus_xw")
-
-## Nurse ----
-## These variables from the nurse labblood file will be included. These include some key variables as determined by us PLUS any variables requested by you. 
-# xlabbloodvars <- c("")
-# 
-# # These variables from the nurse epigenetic clocks file will be included. These include some key variables as determined by us PLUS any variables requested by you. 
-# xepigenclockvars <- c("")
-# 
-# # These variables from the nurse proteomic file will be included. These include some key variables as determined by us PLUS any variables requested by you. 
-# xproteovars <- c("")
-
-
-
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #  
-# Anything below this line should not be changed! Any changes to the selection of variables and waves, and location of folders, should be made above  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# Function to check if a package is installed and install it if necessary
-check_and_install <- function(package) {
-  if (!require(package, character.only = TRUE)) {
-    install.packages(package, dependencies = TRUE, type = "binary")
-    if (!require(package, character.only = TRUE)) {
-      install.packages(package, dependencies = TRUE, type = "source", INSTALL_opts = "--no-multiarch")
-      library(package, character.only = TRUE)
+alabs<- function(x, kable=TRUE, extended=T){
+  tb<- tibble(labels=names(attributes(x)$labels), values=attributes(x)$labels)
+  
+  if(extended==T) {
+    lab<- attributes(x)$label
+    cl<- class(x)
+    u<- unique(x)
+    
+    if(kable==T) {
+      
+      cat(lab, "\n",
+          "Class:",cl, "\n",
+          "Unique values:", u, "\n",
+          "\n"
+      )
+      print(knitr::kable(tb, caption="Labels"))
+      
+    }  else {
+      cat(lab, "\n",
+          "Class:",cl, "\n",
+          "Unique values:", u, "\n",
+          "\n"
+      )
+      print(tb)
     }
-  }
-}
-
-# Check and install necessary packages
-check_and_install("haven")
-check_and_install("dplyr")
-check_and_install("tidyr")
-check_and_install("foreach")
-
-#  // this program returns all variable names with the wave prefix
-getVars <- function(arg1, arg2) {
-  if (arg2== "") {
-    wavemyvars <- arg1
-  } else if (arg1 != "" & !is.null(arg2)) {
-    # Split the string into separate elements
-    wavemyvar <- strsplit(arg1, " ")[[1]]
-    # Add the prefix "*_" to each element
-    wavemyvar_prefix <- paste0(arg2,"_", wavemyvar)  
-    # Concatenate the elements back into a single string
-    wavemyvars <- paste(wavemyvar_prefix, collapse = " ")
+  } else if (kable==T) {
+    
+    kable(tb)
   }  else {
-    wavemyvars <- ""
+    tb
   }
-  return(wavemyvars)
 }
 
-# // this program to returns  which variables exist in this wave
-getExistingVars <- function(vars, df) {
-  existingVars <- c()
-  for (var in vars) {
-    if (var %in% colnames(df)) {
-      existingVars <- c(existingVars, var)
-    }
-  }
-  return(existingVars)
-}
-
-# Split the wave string into individual letters
-allWaves <- strsplit(allWaves, " ")[[1]]
-
-# Loop through each wave
-for (wave in allWaves) {
-  # Find the wave number (letter corresponding to the wave)
-  waveno <- which(strsplit("abcdefghijklmnopqrstuvwxyz", "")[[1]] == wave)
-  
-  # find the wave household vars  
-  wavehhvars <- getVars(hhvars, wave)
-  
-  # find the wave individual vars
-  waveindvars <- getVars(indvars, wave)
-  
-  # find the wave all individual vars
-  waveindallvars <- getVars(indallvars, wave)
-  
-  # find the wave child vars
-  wavechvars <- getVars(chvars, wave)
-  
-  # find the wave youth vars
-  waveyouthvars <- getVars(youthvars, wave)
-  
-  # open the the household level file with the required variable
-  hhresp_dat <- read_dta(paste0(ukhls, "/", wave, "_hhresp.dta"))
-  
-  vars_to_check <- c(paste0(wave, "_hidp"), wavehhvars)
-  vars_to_check <- unlist(strsplit(vars_to_check, " "))
-  
-  # get the existing variables using the getExistingVars function
-  existingVars <- getExistingVars(vars_to_check, hhresp_dat)
-  
-  # keep only the existing variables in the data frame
-  df_hhresp <- hhresp_dat %>% select(all_of(existingVars))
-  
-  # check if individual, child, or youth variables are required
-  if (!is.null(indvars) || !is.null(chvars) || !is.null(youthvars)) {
-    # if any individual variable is required, first merge INDALL keeping the pidp
-    indall_data <- right_join(df_hhresp, read_dta(paste0(ukhls, "/", wave, "_indall.dta")), by = paste0(wave, "_hidp"))
-    
-    # drop rows where pidp is missing (loose households with no individuals)
-    indall_data <- indall_data[!is.na(indall_data$pidp), ]
-    
-    # get the existing variables using the getExistingVars function
-    vars_to_check <- c("pidp", paste0(wave, "_hidp"), wavehhvars, waveindallvars)
-    vars_to_check <- unlist(strsplit(vars_to_check, " "))
-    existingVars <- getExistingVars(vars_to_check, indall_data)
-    
-    # keep only the existing variables in the data frame
-    df_alldata <- indall_data %>% select(all_of(existingVars))
-    
-    # add any requested individual variables
-    if (!is.null(indvars)){
-      # Remove the duplicate variable from df_indresp before merging to avoid any suffix being added
-      df_indresp <- read_dta(paste0(ukhls, "/", wave, "_indresp.dta"))
-      df_indresp <- df_indresp[ , !names(df_indresp) %in% names(df_alldata) | names(df_indresp) == "pidp"]
-      
-      indvars_dat <- merge(df_alldata, df_indresp, by = "pidp", all = TRUE)
-      
-      # get the existing variables using the getExistingVars function
-      vars_to_check <- c("pidp", paste0(wave, "_hidp"), wavehhvars, waveindvars, waveyouthvars, wavechvars, waveindallvars)
-      vars_to_check <- unlist(strsplit(vars_to_check, " "))
-      existingVars <- getExistingVars(vars_to_check, indvars_dat)
-      
-      # keep only the existing variables in the data frame
-      df_alldata <- indvars_dat %>% select(all_of(existingVars))
-    }
-    
-    # add any requested youth variables
-    if (!is.null(waveyouthvars)){
-      # remove the duplicate variable from df_youth before merging to avoid any suffix being added
-      df_youth <- read_dta(paste0(ukhls, "/", wave, "_youth.dta"))
-      df_youth <- df_youth[ , !names(df_youth) %in% names(df_alldata) | names(df_youth) == "pidp"]
-      
-      youth_dat <- merge(df_alldata, df_youth, by = "pidp", all = TRUE)
-      
-      # get the existing variables using the getExistingVars function
-      vars_to_check <- c("pidp", paste0( wave, "_hidp"), wavehhvars, waveindvars, waveyouthvars, wavechvars, waveindallvars)
-      vars_to_check <- unlist(strsplit(vars_to_check, " "))
-      existingVars <- getExistingVars(vars_to_check, youth_dat)
-      
-      # keep only the existing variables in the data frame
-      df_alldata <- youth_dat %>% select(all_of(existingVars))
-    }
-    
-    # add any requested child variables
-    if (!is.null(wavechvars)){
-      df_child <- read_dta(paste0(ukhls, "/", wave, "_child.dta"))
-      df_child <- df_child[ , !names(df_child) %in% names(df_alldata) | names(df_child) == "pidp"]
-      child_dat <- merge(df_alldata, df_child, by = "pidp", all = TRUE)
-      
-      # Get the existing variables using the getExistingVars function
-      vars_to_check <- c("pidp", paste0(wave, "_hidp"), wavehhvars, waveindvars, waveyouthvars, wavechvars, waveindallvars)
-      existingVars <- getExistingVars(unlist(strsplit(vars_to_check, " ")), child_dat)
-      
-      # Keep only the existing variables in the data frame
-      df_alldata <- child_dat %>% select(all_of(existingVars))
-    }
-  }	
-  # Create a wave variable
-  df_alldata$wavename <- waveno
-  
-  # Drop the wave prefix from all variables
-  colnames(df_alldata) <- gsub(paste0(wave, "_"), "", colnames(df_alldata))
-  
-  # Save the file that was created
-  saveRDS(df_alldata, file = paste0("temp_", wave, ".rds"))
-  
-}
+packages <- c("tidyverse", "haven", "pastecs", "datawizard", #"convenience",
+              "ggplot2", "ggrepel", "sjPlot", "lme4", "knitr", "kableExtra", 
+              "stringr", "flextable", "officer", "sf", "plm", "stargazer",
+              "patchwork", "tidytext", "sjlabelled")
+install.packages(setdiff(packages, rownames(installed.packages())))
+suppressMessages(lapply(packages, library, character.only = TRUE, quietly=T))
+rm(packages)
+options(max.print=10000)
 
 
-# Nurse Logic ----
-## setup Labblood,xepigen_clocks and proteo 
-# df_allnurse <- NULL
-# xlabbloodvars <- getVars(xlabbloodvars,"")
-# xepigenvars <- getVars(xepigenclockvars,"")
-# xproteovars <- getVars(xproteovars,"")
-# 
-# # add any requested labblood variables
-# if (!is.null(xlabbloodvars)){
-#   df_labblood <- read_dta(paste0(ukhls_nurse,"/", "xlabblood_ns.dta"))
-#   # Get the existing variables using the getExistingVars function
-#   vars_to_check <- c("pidp", xlabbloodvars)
-#   existingVars <- getExistingVars(unlist(strsplit(vars_to_check, " ")), df_labblood)
-#   # Keep only the existing variables in the data frame
-#   df_allnurse <- df_labblood %>% select(all_of(existingVars))
-# }
-# 
-# # add any requested epigen variables
-# if (!is.null(xepigenvars)){
-#   df_epigen <- read_dta(paste0(ukhls_nurse,"/", "xepigen_clocks_ns.dta"))
-#   epigen_dat <- merge(df_allnurse, df_epigen, by = "pidp", all = TRUE)
-#   # Get the existing variables using the getExistingVars function
-#   vars_to_check <- c("pidp", xlabbloodvars, xepigenvars)
-#   existingVars <- getExistingVars(unlist(strsplit(vars_to_check, " ")), epigen_dat)
-#   # Keep only the existing variables in the data frame
-#   df_allnurse <- epigen_dat %>% select(all_of(existingVars))
-# }
-# 
-# # add any requested proteo variables
-# if (!is.null(xproteovars)){
-#   df_proteo <- read_dta(paste0(ukhls_nurse,"/", "xproteo_ns.dta"))
-#   proteo_dat <- merge(df_allnurse, df_proteo, by = "pidp", all = TRUE)
-#   # Get the existing variables using the getExistingVars function
-#   vars_to_check <- c("pidp", paste0(wave, "_hidp"), xlabbloodvars, xepigenvars, xproteovars )
-#   existingVars <- getExistingVars(unlist(strsplit(vars_to_check, " ")), proteo_dat)
-#   # Keep only the existing variables in the data frame
-#   df_allnurse <- proteo_dat %>% select(all_of(existingVars))
-# }
-# 
-# # Save the file that was created
-# # Drop the wave prefix from all variables
-# colnames(df_allnurse) <- gsub(paste0(wave, "_"), "", colnames(df_allnurse))
-# saveRDS(df_allnurse, file = paste0("temp_nurse", ".rds"))# Loop through the remaining waves and append them in the long format
+
+## Load ----
+uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
+
+## Rename ----
+new_var_names <- c(hhnetinc      = "fihhmnnet1_dv",     # total household net income - no deductions
+                   hhincoecd     = "ieqmoecd_dv",       # Modified OECD equivalence scale
+                   
+                   hhbenefit     = "fihhmnprben_dv",    # total household private benefit income: month before interview
+                   #a            = "fimnsben_dv",       # amount income component 7: social benefit income
+                   fimngrs_dv    = "pinc_g",            # total monthly personal income gross
+                   fimnnet_dv    = "pinc_n",            # total net personal income - no deductions
+                   fimnlabgrs_dv = "pinc_month_g",      # total monthly labour income gross
+                   
+                   benctc     = "chi_benefit_CTC",      # Income: Receives Child Tax Credit (W1-W15)
+                   #benfam4   = "fam_benefit_IWC_lp",   # Income: Family benefits: In-Work Credit for Lone Parents 
+                   
+                   bendis2   = "dis_benefit_ESA",       # Income: Disability benefits: Employment and Support Allowance
+                   bendis6   = "dis_benefit_return_WC", # Income: Disability benefits: Return to work credit
+                   bendis11  = "dis_benefit_UC",        # Income: Disability benefits: Universal Credit
+                   
+                   benhou1   = "hou_benefit_HB",        # Receives housing-related benefit(s): Housing Benefit
+                   benhou2   = "hou_benefit_CTS",       # Receives housing-related benefit(s): Council tax benefit
+                   benhou3   = "hou_benefit_rent_r",    # Receives housing-related benefit(s): Rent rebate
+                   benhou4   = "hou_benefit_rate_r",    # Receives housing-related benefit(s): Rate rebate
+                   benhou5   = "hou_benefit_UC",        # Receives housing-related benefit(s): Universal Credit
+                   
+                   bentax1   = "tax_benefit_WTC",       # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit
+                   bentax2   = "tax_benefit_CTS",       # Income: Tax Credits: Council Tax Benefit
+                   bentax4   = "tax_benefit_CTC",       # Income: Tax Credits: Child Tax Credit
+                   bentax5   = "tax_benefit_return_WC", # Income: Tax Credits: Return to Work Credit
+                   bentax6   = "tax_benefit_UC",        # Income: Tax Credits: Universal Credit
+                   
+                   benunemp1 = "unemp_benefit_JSA",     # Income : Unemployment benefits: Job Seeker's Allowance
+                   benunemp2 = "unemp_benefit_NIC",     # Income : Unemployment benefits: National Insurance Credits
+                   benunemp3 = "unemp_benefit_UC",      # Income : Unemployment benefits: Universal Credit
+                   
+                   btype1    = "bt_benefit_unemp",      # Type of benefit or payment: Unemployment-related benefits, or National Insurance
+                   btype2    = "bt_benefit_IS",         # Type of benefit or payment: Income Support
+                   btype3    = "bt_benefit_sick",       # Type of benefit or payment: Sickness, disability or incapacity benefits
+                   btype5    = "bt_benefit_CB",         # Type of benefit or payment: Child Benefit
+                   btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
+                   btype7    = "bt_benefit_fam",        # Type of benefit or payment: Any other family related benefit or payment
+                   btype8    = "bt_benefit_CTB",        # Type of benefit or payment: Housing or Council Tax Benefit (other than the single)
+                   btype10   = "bt_benefit_UC",         # Type of benefit or payment: Universal Credit
+                   
+                   benbase1  = "inc_benefit_IS",        # Income: Receives core benefits: Income Support
+                   benbase2  = "inc_benefit_JSA",       # Income: Receives core benefits: Job Seeker's Allowance
+                   benbase3  = "inc_benefit_CB",        # Income: Receives core benefits: Child Benefit
+                   benbase4  = "inc_benefit_UC",        # Income: Receives core benefits: Universal Credit
+                   
+                   pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+                   pbnft5 = "inct_benefit_ESA",         # Income types received: Employment and Support Allowance
+                   pbnft6 = "inct_benefit_CB",          # Income types received: Child Benefit
+                   pbnft7 = "inct_benefit_WTC",         # Income types received: Working Tax Credit
+                   pbnft8 = "inct_benefit_hous",        # Income types received: Housing Benefit/Rent Rebate
+                   #pbnft9 = "inct_benefit_IB",         # Income types received: Incapacity Benefit (Replaces Invalidity and NI Sickness)
+                   pbnft11 = "inct_benefit_CTC",        # Income types received: Child Tax Credit
+                   pbnft13 = "inct_benefit_UC",         # Income types received: Universal Credit
+                   
+                   othben3 = "oth_benefit_IWC_lp",      # Other benefits or credits: In-Work Credit for Lone Parents
+                   othben4 = "oth_benefit_return_WC",   # Other benefits or credits: Return to Work Credit
+                   othben5 = "oth_benefit_WTC",         # Other benefits or credits: Working Tax Credit
+                   othben8 = "oth_benefit_hous",        # Other benefits or credits: Housing Benefit
+                   
+                   #frwc = "benefit_n",                 # Period covered by last amount received
+                   
+                   scdassat_dv = "DAS_rel_sat",         # Dyadic Adjustment Scale: Relationship satisfaction subscale
+                   scdascoh_dv = "DAS_rel_coh",         # Dyadic Adjustment Scale: Relationship cohesion subscale
+                   screlhappy = "rel_happy"             # Degree of happiness with relationship
+                   )
+uk <- rename(uk,
+            all_of(new_var_names))
 
 
-# Final file ----
-df_append <- NULL  # Initialize an empty dataframe to store the result
-for (w in allWaves) {
-  df_temp <- readRDS(paste0("temp_", w, ".rds"))
-  df_append <- bind_rows(df_append, df_temp)
-}
 
-# Move pidp to the beginning of the file
-df_longdata <- df_append[order(df_append$pidp), ]
 
-## Merge ----
-## Merge wave-independent nurse/lab data AFTER combining waves
-#df_longdata <- merge(df_longdata, df_allnurse, by = "pidp", all = TRUE)
-df_longdata <- df_longdata[order(df_longdata$pidp), ]
+# Recoding ----
+## Agegroup ----
+# uk <- uk %>%
+#   mutate(
+#     agegrp = case_when(
+#       age >= 15 & age <= 20 ~ 0,
+#       age >= 21 & age <= 25 ~ 1,
+#       age >= 26 & age <= 30 ~ 2,
+#       age >= 31 & age <= 35 ~ 3,
+#       age >= 36 & age <= 40 ~ 4,
+#       age >= 41 & age <= 45 ~ 5,
+#       age >= 46 & age <= 50 ~ 6,
+#       age >= 51 & age <= 55 ~ 7,
+#       TRUE ~ NA_real_
+#       )
+#     )
 
-# Check how many observations are available from each wave
-table(df_longdata$wavename)
 
-## Save ----
-saveRDS(df_longdata, file = paste0(outputpath, "/", outputfilename, ".rds"))
+## Sex ----
+uk <- uk %>%
+  mutate(
+    sex = case_when(
+      sex == 2 ~ 0,
+      sex == 1 ~ 1,
+      TRUE     ~ NA_real_
+    ),
+    sex = factor(
+      sex,
+      levels = c(0, 1),
+      labels = c("Female", "Male")
+    )
+  )
 
-# Erase temporary files
-for (wave in allWaves) {
-  file.remove(paste0("temp_", wave, ".rds"))
-}
+## PPSex ----
+uk <- uk %>%
+  mutate(
+    ppsex = case_when(
+      ppsex == 2 ~ 0,
+      ppsex == 1 ~ 1,
+      TRUE     ~ NA_real_
+    ),
+    ppsex = factor(
+      ppsex,
+      levels = c(0, 1),
+      labels = c("Female", "Male")
+    )
+  )
+
+
+## Marital status ----
+# uk <- uk %>%
+#   mutate(
+#     marstat2 = case_when(
+#       marstat == 2             ~ "Married",
+#       
+#       TRUE                     ~ NA_character_ # 1 Single; 3 same sex; 4 separated but legally married
+#     ),
+#     marstat2 = factor(marstat2, 
+#                       levels = c("Cohabiting", "Married"))
+#   )
+
+#table(uk$livesp)
+
+## Labor Force Status ----
+### Anchor ----
+uk <- uk %>%
+  mutate(
+    lfstat = case_when(
+      jbstat == 2                     ~ "Full/Part-time employed",
+      jbstat == 1                     ~ "Self-employed",
+      jbstat == 3                     ~ "Unemployed",
+      jbstat %in% c(4,8)              ~ "Retired",
+      jbstat %in%c (5, 6, 10, 14, 15) ~ "Inactive",
+      TRUE                ~ NA_character_
+      ),
+    lfstat = factor(lfstat,
+                    levels = c("Full/Part-time employed",
+                               "Self-employed",
+                               "Unemployed", "Retired", "Inactive"))
+    )
+
+### Partner ----
+uk <- uk %>%
+  mutate(
+    p_lfstat = case_when(
+      ncrr6 == 2                     ~ "Full/Part-time employed",
+      ncrr6 == 1                     ~ "Self-employed",
+      ncrr6 == 3                     ~ "Unemployed",
+      ncrr6 %in% c(4,8)              ~ "Retired",
+      ncrr6 %in%c (5, 6, 10, 14, 15) ~ "Inactive",
+      TRUE                ~ NA_character_
+      ),
+    p_lfstat = factor(p_lfstat,
+                      levels = c("Full/Part-time employed",
+                                 "Self-employed",
+                                 "Unemployed", "Retired", "Inactive"))
+    )
+
+
+## Income ----
+### Log ----
+#### OECD ----
+uk <- uk %>%
+  mutate(
+    hhincoecd = case_when(
+      hhincoecd < 0 ~ NA_real_,
+      TRUE ~ hhincgcee
+    ),
+    log_hhincoecd = log1p(hhincoecd)      ## HH-Income (Nettoäquivalenzeinkommen, OECD)
+  )
+
+## Benefits ----
+### JSA ----
+#benunemp1 = "unemp_benefit_JSA",     # Income : Unemployment benefits: Job Seeker's Allowance
+#benbase2  = "inc_benefit_JSA",       # Income: Receives core benefits: Job Seeker's Allowance
+#pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+
+
+### IS ----
+#btype2    = "bt_benefit_IS",         # Type of benefit or payment: Income Support
+#benbase1  = "inc_benefit_IS",        # Income: Receives core benefits: Income Support
+#pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+
+### ESA ----
+#bendis2   = "dis_benefit_ESA",       # Income: Disability benefits: Employment and Support Allowance
+#pbnft5 = "inct_benefit_ESA",         # Income types received: Employment and Support Allowance
+
+### Housing benefit ----
+#benhou1   = "hou_benefit_HB",        # Receives housing-related benefit(s): Housing Benefit
+#btype8    = "bt_benefit_CTB",        # Type of benefit or payment: Housing or Council Tax Benefit (other than the single)
+#pbnft8 = "inct_benefit_hous",        # Income types received: Housing Benefit/Rent Rebate
+#othben8 = "oth_benefit_hous",        # Other benefits or credits: Housing Benefit
+
+### CTC ----
+#benctc     = "chi_benefit_CTC",      # Income: Receives Child Tax Credit (W1-W15)
+#bentax4   = "tax_benefit_CTC",       # Income: Tax Credits: Child Tax Credit
+#pbnft11 = "inct_benefit_CTC",        # Income types received: Child Tax Credit
+
+### WTC ----
+#bentax1   = "tax_benefit_WTC",       # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit
+#btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
+#btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
+#pbnft7 = "inct_benefit_WTC",         # Income types received: Working Tax Credit
+#othben5 = "oth_benefit_WTC",         # Other benefits or credits: Working Tax Credit
+
+### CTS ----
+#benhou2   = "hou_benefit_CTS",       # Receives housing-related benefit(s): Council tax benefit
+#bentax2   = "tax_benefit_CTS",       # Income: Tax Credits: Council Tax Benefit
+
+### UC ----
+#bendis11  = "dis_benefit_UC",        # Income: Disability benefits: Universal Credit
+#benhou5   = "hou_benefit_UC",        # Receives housing-related benefit(s): Universal Credit
+#bentax6   = "tax_benefit_UC",        # Income: Tax Credits: Universal Credit
+#benunemp3 = "unemp_benefit_UC",      # Income : Unemployment benefits: Universal Credit
+#btype10   = "bt_benefit_UC",         # Type of benefit or payment: Universal Credit
+#benbase4  = "inc_benefit_UC",        # Income: Receives core benefits: Universal Credit
+#pbnft13 = "inct_benefit_UC",         # Income types received: Universal Credit 
+
+
+
+
+
+
+
+
+
+# Sample reduction ----
+## Age ----
+uk <- uk %>%
+  filter(age_dv >= 15) # Drop samples younger than 15
+
+
+
+
+# Factor transf ----
+uk$country <- factor(
+  uk$country,
+  levels = c(1, 2, 3, 4),
+  labels = c("England", "Wales", "Scotland", "Northern Ireland")
+  )
