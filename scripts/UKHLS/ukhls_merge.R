@@ -40,11 +40,30 @@ allWaves <- c("a b c d e f g h i j k l m n o")
 
 ## Indall ----
 ## These variables from the indall files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-indallvars <- c("age_dv butype country ethn_dv ff_ivlolw gor_dv hhsize hidp iviolw marstat mastat_dv nchild_dv pidp pno ppsex psnen01_lw psnen01_xw psnen91_lw psnen91_xw psnen99_lw psnen99_xw psneng2_lw psneng2_xw psnenub_lw psnenub_xw psnenui_lw psnenui_xw psnenus_lw psnenus_xw psu racel_dv sex sex_dv strata urban_dv")
+indallvars <- c("age_dv butype country ethn_dv ff_ivlolw gor_dv hhsize hidp iviolw marstat mastat_dv nchild_dv pidp pno ppsex
+                psnen01_lw psnen01_xw psnen91_lw psnen91_xw psnen99_lw psnen99_xw psneng2_lw psneng2_xw psnenub_lw psnenub_xw psnenui_lw psnenui_xw
+                psnenus_lw psnenus_xw psu racel_dv sex sex_dv strata urban_dv")
 
 ## Indresp ----
 ## These variables from the indresp files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-indvars <- c("age_dv benbase1 benbase2 benbase3 benbase4 benbase96 benctc bendis1 bendis10 bendis11 bendis12 bendis13 bendis14 bendis15 bendis16 bendis2 bendis3 bendis4 bendis5 bendis6 bendis7 bendis8 bendis9 bendis96 bendis97 benhou1 benhou2 benhou3 benhou4 benhou5 benhou6 benhou7 benhou8 benhou9 benhou96 bentax1 bentax10 bentax2 bentax3 bentax4 bentax5 bentax6 bentax7 bentax8 bentax9 bentax96 benunemp1 benunemp2 benunemp3 benunemp4 benunemp5 benunemp6 benunemp7 benunemp96 btype1 btype10 btype11 btype12 btype13 btype14 btype2 btype3 btype4 btype5 btype6 btype7 btype8 btype9 btype96 butype cohabn country ethn_dv ff_emplw ff_ivlolw ffbrfedlw fimngrs_dv fimnlabgrs_dv fimnnet_dv fimnsben_dv fisby ftexw gor_dv hhsize hhtype_dv hidp ind5mus_lw ind5mus_xw indbd91_lw indbdub_lw indin01_lw indin01_xw indin91_lw indin91_xw indin99_lw indin99_xw inding2_lw inding2_xw indinub_lw indinub_xw indinui_lw indinui_xw indinus_lw indinus_xw indns91_lw indnsub_lw indpxg2_xw indpxub_lw indpxub_xw indpxui_lw indpxui_xw indpxus_lw indpxus_xw indscg2_xw indscub_lw indscub_xw indscui_lw indscui_xw indscus_lw indscus_xw iviolw jbstat marstat mastat_dv mlstat nbornlw nchild_dv othben1 othben10 othben2 othben3 othben4 othben5 othben6 othben7 othben8 othben9 othben96 othben97 pbnft1 pbnft10 pbnft11 pbnft12 pbnft13 pbnft14 pbnft15 pbnft16 pbnft17 pbnft18 pbnft19 pbnft2 pbnft3 pbnft4 pbnft5 pbnft6 pbnft7 pbnft8 pbnft9 pbnft96 pidp pno ppsex prfitb psu racel_dv scdassat_dv scdascoh_dv scghq1_dv screlhappy sclfsato sex sex_dv strata tenure_dv ukborn urban_dv")
+indvars <- c("age_dv benbase1 benbase2 benbase3 benbase4 benbase96 benctc bendis1 bendis10 bendis11 bendis12 bendis13 bendis14 bendis15 bendis16
+              bendis2 bendis3 bendis4 bendis5 bendis6 bendis7 bendis8 bendis9 bendis96 bendis97 benhou1 benhou2 benhou3 benhou4 benhou5 benhou6 benhou7 benhou8 benhou9 benhou96
+              bentax1 bentax10 bentax2 bentax3 bentax4 bentax5 bentax6 bentax7 bentax8 bentax9 bentax96 benunemp1 benunemp2 benunemp3 benunemp4 benunemp5 benunemp6 benunemp7
+              benunemp96 btype1 btype10 btype11 btype12 btype13 btype14 btype2 btype3 btype4 btype5 btype6 btype7 btype8 btype9 btype96 butype
+              cohabn country ethn_dv ff_emplw ff_ivlolw ffbrfedlw fimngrs_dv fimnlabgrs_dv fimnnet_dv fimnsben_dv fisby 
+              ftexw gor_dv hhsize hhtype_dv hidp
+              ind5mus_lw ind5mus_xw indbd91_lw
+              iviolw jbstat pjbptft jbft_dv jshrs employ ncrr6 marstat mastat_dv mlstat sf1 scsf1
+              nbornlw nchild_dv othben1 othben10 othben2 othben3 othben4 othben5 othben6 othben7 othben8 othben9 othben96 othben97
+              pbnft1 pbnft10 pbnft11 pbnft12 pbnft13 pbnft14 pbnft15 pbnft16 pbnft17 pbnft18 pbnft19 pbnft2 pbnft3 pbnft4 pbnft5 pbnft6 pbnft7
+              pbnft8 pbnft9 pbnft96 pidp pno ppsex prfitb psu racel_dv scdassat_dv scdascoh_dv sclfsato scghq1_dv screlhappy livesp sclfsato
+              sex sex_dv strata tenure_dv ukborn urban_dv")
+
+### Unused ----
+#### Weight
+# indbdub_lw indin01_lw indin01_xw indin91_lw indin91_xw indin99_lw indin99_xw inding2_lw inding2_xw indinub_lw indinub_xw
+# indinui_lw indinui_xw indinus_lw indinus_xw indns91_lw indnsub_lw indpxg2_xw indpxub_lw indpxub_xw indpxui_lw indpxui_xw indpxus_lw
+# indpxus_xw indscg2_xw indscub_lw indscub_xw indscui_lw indscui_xw indscus_lw indscus_xw
 
 ## Child ----
 ## These variables from the child files will be included. These include some key variables as determined by us PLUS any variables requested by you.

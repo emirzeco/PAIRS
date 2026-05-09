@@ -60,7 +60,8 @@ options(max.print=10000)
 
 
 ## Load ----
-uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
+uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/UKHLS_long.rds")
+#uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
 
 ## Rename ----
 new_var_names <- c(hhnetinc      = "fihhmnnet1_dv",     # total household net income - no deductions
@@ -132,7 +133,12 @@ new_var_names <- c(hhnetinc      = "fihhmnnet1_dv",     # total household net in
 uk <- rename(uk,
             all_of(new_var_names))
 
-
+## Factor transf ----
+uk$country <- factor(
+  uk$country,
+  levels = c(1, 2, 3, 4),
+  labels = c("England", "Wales", "Scotland", "Northern Ireland")
+)
 
 
 # Recoding ----
@@ -185,25 +191,28 @@ uk <- uk %>%
 
 
 ## Marital status ----
-# uk <- uk %>%
-#   mutate(
-#     marstat2 = case_when(
-#       marstat == 2             ~ "Married",
-#       
-#       TRUE                     ~ NA_character_ # 1 Single; 3 same sex; 4 separated but legally married
-#     ),
-#     marstat2 = factor(marstat2, 
-#                       levels = c("Cohabiting", "Married"))
-#   )
+uk <- uk %>%
+  mutate(
+    marstat4 = case_when(
+      marstat == 1 ~ "Single",
+      marstat == 2 ~ "Married",
+      marstat == 3 ~ "Divorced",
+      marstat == 4 ~ "Widowed",
+      TRUE         ~ NA_character_ # 1 Single; 3 same sex; 4 separated but legally married; 7 separated; 8; 9 
+    ),
+    marstat4 = factor(marstat4,
+                      levels = c("Cohabiting", "Married"))
+  )
 
-#table(uk$livesp)
+table(uk$livesp)
 
 ## Labor Force Status ----
 ### Anchor ----
 uk <- uk %>%
   mutate(
     lfstat = case_when(
-      jbstat == 2                     ~ "Full/Part-time employed",
+      jbstat == 2 & jbft_dv == 1      ~ "Full-time employed",
+      jbstat == 2 & jbft_dv == 2      ~ "Part-time employed",
       jbstat == 1                     ~ "Self-employed",
       jbstat == 3                     ~ "Unemployed",
       jbstat %in% c(4,8)              ~ "Retired",
@@ -252,7 +261,6 @@ uk <- uk %>%
 #benbase2  = "inc_benefit_JSA",       # Income: Receives core benefits: Job Seeker's Allowance
 #pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
 
-
 ### IS ----
 #btype2    = "bt_benefit_IS",         # Type of benefit or payment: Income Support
 #benbase1  = "inc_benefit_IS",        # Income: Receives core benefits: Income Support
@@ -276,13 +284,40 @@ uk <- uk %>%
 ### WTC ----
 #bentax1   = "tax_benefit_WTC",       # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit
 #btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
-#btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
 #pbnft7 = "inct_benefit_WTC",         # Income types received: Working Tax Credit
 #othben5 = "oth_benefit_WTC",         # Other benefits or credits: Working Tax Credit
 
 ### CTS ----
 #benhou2   = "hou_benefit_CTS",       # Receives housing-related benefit(s): Council tax benefit
 #bentax2   = "tax_benefit_CTS",       # Income: Tax Credits: Council Tax Benefit
+
+
+# # # # # # # # # # # # # # # # # # # # # # # 
+### Return to Work Credit ----
+#bendis6   = "dis_benefit_return_WC"
+#bentax5   = "tax_benefit_return_WC"
+#othben4   = "oth_benefit_return_WC"
+
+### Lone Parent In-Work Credit ----
+#othben3   = "oth_benefit_IWC_lp"
+#benfam4   = "fam_benefit_IWC_lp"
+
+### Other family benefits ----
+#btype7    = "bt_benefit_fam"
+
+### Rent rebate ----
+#benhou3   = "hou_benefit_rent_r"
+#benhou4   = "hou_benefit_rate_r"
+
+### National Insurance Credit ----
+#benunemp2 = "unemp_benefit_NIC"
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+### Child Benefit ----
+#btype5    = "bt_benefit_CB"
+#benbase3  = "inc_benefit_CB"
+#pbnft6    = "inct_benefit_CB"
+
 
 ### UC ----
 #bendis11  = "dis_benefit_UC",        # Income: Disability benefits: Universal Credit
@@ -299,19 +334,7 @@ uk <- uk %>%
 
 
 
-
-
 # Sample reduction ----
 ## Age ----
 uk <- uk %>%
   filter(age_dv >= 15) # Drop samples younger than 15
-
-
-
-
-# Factor transf ----
-uk$country <- factor(
-  uk$country,
-  levels = c(1, 2, 3, 4),
-  labels = c("England", "Wales", "Scotland", "Northern Ireland")
-  )
