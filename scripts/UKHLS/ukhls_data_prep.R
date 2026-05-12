@@ -1,6 +1,6 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # R code for                                                                              # 
-# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in UK      #
+# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
 # Last Update: 07.05.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -64,71 +64,72 @@ uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/UKHLS_long.rds")
 #uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
 
 ## Rename ----
-new_var_names <- c(hhnetinc      = "fihhmnnet1_dv",     # total household net income - no deductions
-                   hhincoecd     = "ieqmoecd_dv",       # Modified OECD equivalence scale
+new_var_names <- c(hhnetinc              = "fihhmnnet1_dv",         # total household net income - no deductions
+                   hhincoecd             = "ieqmoecd_dv",           # Modified OECD equivalence scale
                    
-                   hhbenefit     = "fihhmnprben_dv",    # total household private benefit income: month before interview
-                   #a            = "fimnsben_dv",       # amount income component 7: social benefit income
-                   fimngrs_dv    = "pinc_g",            # total monthly personal income gross
-                   fimnnet_dv    = "pinc_n",            # total net personal income - no deductions
-                   fimnlabgrs_dv = "pinc_month_g",      # total monthly labour income gross
+                   hhbenefitinc_lag      = "fihhmnprben_dv",        # total household private benefit income: month before interview
+                   hhbenefitinc          = "fimnsben_dv",           # amount income component 7: social benefit income
+                   pinc_g                = "fimngrs_dv",            # total monthly personal income gross
+                   pinc_n                = "fimnnet_dv",            # total net personal income - no deductions
+                   pinc_lab_month_g      = "fimnlabgrs_dv",         # total monthly labor income gross
                    
-                   benctc     = "chi_benefit_CTC",      # Income: Receives Child Tax Credit (W1-W15)
-                   #benfam4   = "fam_benefit_IWC_lp",   # Income: Family benefits: In-Work Credit for Lone Parents 
+                   chi_benefit_CTC       = "benctc",                # Income: Receives Child Tax Credit                                                  (W1-W15)
                    
-                   bendis2   = "dis_benefit_ESA",       # Income: Disability benefits: Employment and Support Allowance
-                   bendis6   = "dis_benefit_return_WC", # Income: Disability benefits: Return to work credit
-                   bendis11  = "dis_benefit_UC",        # Income: Disability benefits: Universal Credit
+                   #fam_benefit_IWC_lp   = "benfam4",               # Income: Family benefits: In-Work Credit for Lone Parents                           (W1-W5)
                    
-                   benhou1   = "hou_benefit_HB",        # Receives housing-related benefit(s): Housing Benefit
-                   benhou2   = "hou_benefit_CTS",       # Receives housing-related benefit(s): Council tax benefit
-                   benhou3   = "hou_benefit_rent_r",    # Receives housing-related benefit(s): Rent rebate
-                   benhou4   = "hou_benefit_rate_r",    # Receives housing-related benefit(s): Rate rebate
-                   benhou5   = "hou_benefit_UC",        # Receives housing-related benefit(s): Universal Credit
+                   dis_benefit_ESA       = "bendis2",               # Income: Disability benefits: Employment and Support Allowance                      (W1-W15)
+                   dis_benefit_return_WC = "bendis6",               # Income: Disability benefits: Return to work credit                                 (W1-W15)
+                   dis_benefit_UC        = "bendis11",              # Income: Disability benefits: Universal Credit                                      (W1-W15)
                    
-                   bentax1   = "tax_benefit_WTC",       # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit
-                   bentax2   = "tax_benefit_CTS",       # Income: Tax Credits: Council Tax Benefit
-                   bentax4   = "tax_benefit_CTC",       # Income: Tax Credits: Child Tax Credit
-                   bentax5   = "tax_benefit_return_WC", # Income: Tax Credits: Return to Work Credit
-                   bentax6   = "tax_benefit_UC",        # Income: Tax Credits: Universal Credit
+                   hou_benefit_HB        = "benhou1",               # Receives housing-related benefit(s): Housing Benefit                               (W1-W5)
+                   hou_benefit_CTS       = "benhou2",               # Receives housing-related benefit(s): Council tax benefit                           (W1-W5)
+                   hou_benefit_rent      = "benhou3",               # Receives housing-related benefit(s): Rent rebate                                   (W1-W5)
+                   hou_benefit_rate_r    = "benhou4",               # Receives housing-related benefit(s): Rate rebate                                   (W1-W5)
+                   hou_benefit_UC        = "benhou5",               # Receives housing-related benefit(s): Universal Credit                              (W1-W5)
                    
-                   benunemp1 = "unemp_benefit_JSA",     # Income : Unemployment benefits: Job Seeker's Allowance
-                   benunemp2 = "unemp_benefit_NIC",     # Income : Unemployment benefits: National Insurance Credits
-                   benunemp3 = "unemp_benefit_UC",      # Income : Unemployment benefits: Universal Credit
+                   tax_benefit_WTC       = "bentax1",               # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit    (W1-W5)
+                   tax_benefit_CTS       = "bentax2",               # Income: Tax Credits: Council Tax Benefit                                           (W1-W5)
+                   tax_benefit_CTC       = "bentax4",               # Income: Tax Credits: Child Tax Credit                                              (W1-W5)
+                   tax_benefit_return_WC = "bentax5",               # Income: Tax Credits: Return to Work Credit                                         (W1-W5)
+                   tax_benefit_UC        = "bentax6",               # Income: Tax Credits: Universal Credit                                              (W1-W5)
                    
-                   btype1    = "bt_benefit_unemp",      # Type of benefit or payment: Unemployment-related benefits, or National Insurance
-                   btype2    = "bt_benefit_IS",         # Type of benefit or payment: Income Support
-                   btype3    = "bt_benefit_sick",       # Type of benefit or payment: Sickness, disability or incapacity benefits
-                   btype5    = "bt_benefit_CB",         # Type of benefit or payment: Child Benefit
-                   btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
-                   btype7    = "bt_benefit_fam",        # Type of benefit or payment: Any other family related benefit or payment
-                   btype8    = "bt_benefit_CTB",        # Type of benefit or payment: Housing or Council Tax Benefit (other than the single)
-                   btype10   = "bt_benefit_UC",         # Type of benefit or payment: Universal Credit
+                   unemp_benefit_JSA     = "benunemp1",             # Income : Unemployment benefits: Job Seeker's Allowance                             (W1-W5)
+                   unemp_benefit_NIC     = "benunemp2",             # Income : Unemployment benefits: National Insurance Credits                         (W1-W5)
+                   unemp_benefit_UC      = "benunemp3",             # Income : Unemployment benefits: Universal Credit                                   (W1-W5)
                    
-                   benbase1  = "inc_benefit_IS",        # Income: Receives core benefits: Income Support
-                   benbase2  = "inc_benefit_JSA",       # Income: Receives core benefits: Job Seeker's Allowance
-                   benbase3  = "inc_benefit_CB",        # Income: Receives core benefits: Child Benefit
-                   benbase4  = "inc_benefit_UC",        # Income: Receives core benefits: Universal Credit
+                   bt_benefit_unemp      = "btype1",                # Type of benefit or payment: Unemployment-related benefits, or National Insurance   (W1-W5)
+                   bt_benefit_IS         = "btype2",                # Type of benefit or payment: Income Support                                         (W1-W5)
+                   bt_benefit_sick       = "btype3",                # Type of benefit or payment: Sickness, disability or incapacity benefits            (W1-W5)
+                   bt_benefit_CB         = "btype5",                # Type of benefit or payment: Child Benefit                                          (W1-W5)
+                   bt_benefit_WTC        = "btype6",                # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child   (W1-W5)
+                   bt_benefit_fam        = "btype7",                # Type of benefit or payment: Any other family related benefit or payment            (W1-W5)
+                   bt_benefit_CTB        = "btype8",                # Type of benefit or payment: Housing or Council Tax Benefit (other than the single) (W1-W5)
+                   bt_benefit_UC         = "btype10",               # Type of benefit or payment: Universal Credit                                       (W1-W5)
                    
-                   pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
-                   pbnft5 = "inct_benefit_ESA",         # Income types received: Employment and Support Allowance
-                   pbnft6 = "inct_benefit_CB",          # Income types received: Child Benefit
-                   pbnft7 = "inct_benefit_WTC",         # Income types received: Working Tax Credit
-                   pbnft8 = "inct_benefit_hous",        # Income types received: Housing Benefit/Rent Rebate
-                   #pbnft9 = "inct_benefit_IB",         # Income types received: Incapacity Benefit (Replaces Invalidity and NI Sickness)
-                   pbnft11 = "inct_benefit_CTC",        # Income types received: Child Tax Credit
-                   pbnft13 = "inct_benefit_UC",         # Income types received: Universal Credit
+                   inc_benefit_IS        = "benbase1",              # Income: Receives core benefits: Income Support                                     (W6-W15)
+                   inc_benefit_JSA       = "benbase2",              # Income: Receives core benefits: Job Seeker's Allowance                             (W6-W15)
+                   inc_benefit_CB        = "benbase3",              # Income: Receives core benefits: Child Benefit                                      (W6-W15)
+                   inc_benefit_UC        = "benbase4",              # Income: Receives core benefits: Universal Credit                                   (W6-W15)
                    
-                   othben3 = "oth_benefit_IWC_lp",      # Other benefits or credits: In-Work Credit for Lone Parents
-                   othben4 = "oth_benefit_return_WC",   # Other benefits or credits: Return to Work Credit
-                   othben5 = "oth_benefit_WTC",         # Other benefits or credits: Working Tax Credit
-                   othben8 = "oth_benefit_hous",        # Other benefits or credits: Housing Benefit
+                   inct_benefit_JSA      = "pbnft4",                # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support  (W1-W15)
+                   inct_benefit_ESA      = "pbnft5",                # Income types received: Employment and Support Allowance                            (W1-W15)
+                   inct_benefit_CB       = "pbnft6",                # Income types received: Child Benefit                                               (W1-W15)
+                   #inct_benefit_WTC      = "pbnft7",               # Income types received: Working Tax Credit                                          (W1-W15)
+                   inct_benefit_hous     = "pbnft8",                # Income types received: Housing Benefit/Rent Rebate                                 (W1-W15)
+                   #inct_benefit_IB      = "pbnft9",                # Income types received: Incapacity Benefit (Replaces Invalidity and NI Sickness)    (W1-W15)
+                   inct_benefit_CTC      = "pbnft11",               # Income types received: Child Tax Credit                                            (W1-W15)
+                   inct_benefit_UC       = "pbnft13",               # Income types received: Universal Credit                                            (W1-W15)
                    
-                   #frwc = "benefit_n",                 # Period covered by last amount received
+                   oth_benefit_IWC_lp    = "othben3",               # Other benefits or credits: In-Work Credit for Lone Parents                         (W6-W15)
+                   oth_benefit_return_WC = "othben4",               # Other benefits or credits: Return to Work Credit                                   (W6-W15)
+                   oth_benefit_WTC       = "othben5",               # Other benefits or credits: Working Tax Credit                                      (W6-W15)
+                   oth_benefit_hous      = "othben8",               # Other benefits or credits: Housing Benefit                                         (W6-W15)
                    
-                   scdassat_dv = "DAS_rel_sat",         # Dyadic Adjustment Scale: Relationship satisfaction subscale
-                   scdascoh_dv = "DAS_rel_coh",         # Dyadic Adjustment Scale: Relationship cohesion subscale
-                   screlhappy = "rel_happy"             # Degree of happiness with relationship
+                   #benefit_n = "frwc",                             # Period covered by last amount received (INCOME DATA)
+                   
+                   DAS_rel_sat           = "scdassat_dv",           # Dyadic Adjustment Scale: Relationship satisfaction subscale (W1, W3, W5, W7, W9, W11, W13, W15)
+                   DAS_rel_coh           = "scdascoh_dv",           # Dyadic Adjustment Scale: Relationship cohesion subscale     (W1, W3, W5, W7, W9, W11, W13, W15)
+                   rel_happy             = "screlhappy"             # Degree of happiness with relationship                       (W1, W3, W5, W7, W9, W11, W13, W15)
                    )
 uk <- rename(uk,
             all_of(new_var_names))
@@ -193,18 +194,16 @@ uk <- uk %>%
 ## Marital status ----
 uk <- uk %>%
   mutate(
-    marstat4 = case_when(
-      marstat == 1 ~ "Single",
-      marstat == 2 ~ "Married",
-      marstat == 3 ~ "Divorced",
-      marstat == 4 ~ "Widowed",
+    marstat3 = case_when(
+      marstat == 1 ~ "Married",
+      marstat == 2 ~ "Divorced",
+      marstat == 3 ~ "Widowed",
       TRUE         ~ NA_character_ # 1 Single; 3 same sex; 4 separated but legally married; 7 separated; 8; 9 
     ),
-    marstat4 = factor(marstat4,
-                      levels = c("Cohabiting", "Married"))
+    marstat3 = factor(marstat3,
+                      levels = c("Married", "Divorced", "Widowed"))
   )
-
-table(uk$livesp)
+#table(uk$livesp) # Live with spouse 
 
 ## Labor Force Status ----
 ### Anchor ----
@@ -250,74 +249,122 @@ uk <- uk %>%
   mutate(
     hhincoecd = case_when(
       hhincoecd < 0 ~ NA_real_,
-      TRUE ~ hhincgcee
+      TRUE ~ hhincoecd
     ),
     log_hhincoecd = log1p(hhincoecd)      ## HH-Income (Nettoäquivalenzeinkommen, OECD)
   )
 
+
+
+
 ## Benefits ----
 ### JSA ----
-#benunemp1 = "unemp_benefit_JSA",     # Income : Unemployment benefits: Job Seeker's Allowance
-#benbase2  = "inc_benefit_JSA",       # Income: Receives core benefits: Job Seeker's Allowance
-#pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+#alabs(uk$unemp_benefit_JSA)          # Income : Unemployment benefits: Job Seeker's Allowance
+#alabs(uk$inc_benefit_JSA)            # Income: Receives core benefits: Job Seeker's Allowance
+#alabs(uk$inct_benefit_JSA)           # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+uk <- uk %>%
+  mutate(
+    benefit_JSA = case_when(
+      unemp_benefit_JSA == 1  |
+        inc_benefit_JSA == 1  |
+        inct_benefit_JSA == 1  
+      ~ 1,
+      
+      unemp_benefit_JSA == 0 |
+        inc_benefit_JSA == 0 |
+        inct_benefit_JSA == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
 
 ### IS ----
-#btype2    = "bt_benefit_IS",         # Type of benefit or payment: Income Support
-#benbase1  = "inc_benefit_IS",        # Income: Receives core benefits: Income Support
-#pbnft4 = "inct_benefit_JSA",         # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+#alabs(uk$bt_benefit_IS)               # Type of benefit or payment: Income Support
+#alabs(uk$inc_benefit_IS)              # Income: Receives core benefits: Income Support
+#alabs(uk$inct_benefit_JSA)            # !!! UNUSED !!!: Income types received: Job Seekers Allowance (Unemployment) and/or Income Support
+uk <- uk %>%
+  mutate(
+    benefit_IS = case_when(
+      bt_benefit_IS == 1 |
+        inc_benefit_IS == 1
+      ~ 1,
+      
+      bt_benefit_IS == 0 |
+        inc_benefit_IS == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
 
 ### ESA ----
-#bendis2   = "dis_benefit_ESA",       # Income: Disability benefits: Employment and Support Allowance
-#pbnft5 = "inct_benefit_ESA",         # Income types received: Employment and Support Allowance
+#alabs(uk$dis_benefit_ESA)          # Income: Disability benefits: Employment and Support Allowance
+#alabs(uk$inct_benefit_ESA)         # Income types received: Employment and Support Allowance
+uk <- uk %>%
+  mutate(
+    benefit_ESA = case_when(
+      dis_benefit_ESA == 1 |
+        inct_benefit_ESA == 1
+      ~ 1,
+      
+      dis_benefit_ESA == 0 |
+        inct_benefit_ESA == 0
+      ~ 0,
+      TRUE ~ NA_real_
+      )
+    )
 
 ### Housing benefit ----
-#benhou1   = "hou_benefit_HB",        # Receives housing-related benefit(s): Housing Benefit
-#btype8    = "bt_benefit_CTB",        # Type of benefit or payment: Housing or Council Tax Benefit (other than the single)
-#pbnft8 = "inct_benefit_hous",        # Income types received: Housing Benefit/Rent Rebate
-#othben8 = "oth_benefit_hous",        # Other benefits or credits: Housing Benefit
+#alabs(uk$hou_benefit_HB)                # Receives housing-related benefit(s): Housing Benefit                               (W1-W5)
+#alabs(uk$bt_benefit_CTB)                # Type of benefit or payment: Housing or Council Tax Benefit (other than the single) (W1-W5)
+#alabs(uk$inct_benefit_hous)             # Income types received: Housing Benefit/Rent Rebate                                 (W1-W15)
+#alabs(uk$oth_benefit_hous)              # Other benefits or credits: Housing Benefit
+uk <- uk %>%
+  mutate(
+    benefit_HB = case_when(
+      hou_benefit_HB == 1 |
+        bt_benefit_CTB == 1 |
+        inct_benefit_hous == 1 |
+        oth_benefit_hous == 1
+      ~ 1,
+      
+      hou_benefit_HB == 0 |
+        bt_benefit_CTB == 0 |
+        inct_benefit_hous == 0 |
+        oth_benefit_hous == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
 
 ### CTC ----
-#benctc     = "chi_benefit_CTC",      # Income: Receives Child Tax Credit (W1-W15)
-#bentax4   = "tax_benefit_CTC",       # Income: Tax Credits: Child Tax Credit
-#pbnft11 = "inct_benefit_CTC",        # Income types received: Child Tax Credit
+#alabs(uk$chi_benefit_CTC)          # Income: Receives Child Tax Credit       (W1-W15)
+#alabs(uk$tax_benefit_CTC)          # Income: Tax Credits: Child Tax Credit   (W1-W5)
+#alabs(uk$inct_benefit_CTC)         # Income types received: Child Tax Credit (W1-W15)
+uk <- uk %>%
+  mutate(
+    benefit_CTC = case_when(
+      chi_benefit_CTC == 1 |
+        tax_benefit_CTC == 1 |
+        inct_benefit_CTC == 1
+      ~ 1,
+      
+      chi_benefit_CTC == 2 |
+        tax_benefit_CTC == 0 |
+        inct_benefit_CTC == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
 
 ### WTC ----
-#bentax1   = "tax_benefit_WTC",       # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit
-#btype6    = "bt_benefit_WTC",        # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child
-#pbnft7 = "inct_benefit_WTC",         # Income types received: Working Tax Credit
-#othben5 = "oth_benefit_WTC",         # Other benefits or credits: Working Tax Credit
+#bentax1   = "tax_benefit_WTC",          # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit    (W1-W5)
+#btype6    = "bt_benefit_WTC",           # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child   (W1-W5)
+#pbnft7    = "inct_benefit_WTC",         # Income types received: Working Tax Credit                                          (W1-W15)
+#othben5   = "oth_benefit_WTC",          # Other benefits or credits: Working Tax Credit                                      (W6-W15)
 
 ### CTS ----
-#benhou2   = "hou_benefit_CTS",       # Receives housing-related benefit(s): Council tax benefit
-#bentax2   = "tax_benefit_CTS",       # Income: Tax Credits: Council Tax Benefit
-
-
-# # # # # # # # # # # # # # # # # # # # # # # 
-### Return to Work Credit ----
-#bendis6   = "dis_benefit_return_WC"
-#bentax5   = "tax_benefit_return_WC"
-#othben4   = "oth_benefit_return_WC"
-
-### Lone Parent In-Work Credit ----
-#othben3   = "oth_benefit_IWC_lp"
-#benfam4   = "fam_benefit_IWC_lp"
-
-### Other family benefits ----
-#btype7    = "bt_benefit_fam"
-
-### Rent rebate ----
-#benhou3   = "hou_benefit_rent_r"
-#benhou4   = "hou_benefit_rate_r"
-
-### National Insurance Credit ----
-#benunemp2 = "unemp_benefit_NIC"
-# # # # # # # # # # # # # # # # # # # # # # # #
-
-### Child Benefit ----
-#btype5    = "bt_benefit_CB"
-#benbase3  = "inc_benefit_CB"
-#pbnft6    = "inct_benefit_CB"
-
+#benhou2   = "hou_benefit_CTS",          # Receives housing-related benefit(s): Council tax benefit                           (W1-W5)
+#bentax2   = "tax_benefit_CTS",          # Income: Tax Credits: Council Tax Benefit                                           (W1-W5)
 
 ### UC ----
 #bendis11  = "dis_benefit_UC",        # Income: Disability benefits: Universal Credit
@@ -326,10 +373,41 @@ uk <- uk %>%
 #benunemp3 = "unemp_benefit_UC",      # Income : Unemployment benefits: Universal Credit
 #btype10   = "bt_benefit_UC",         # Type of benefit or payment: Universal Credit
 #benbase4  = "inc_benefit_UC",        # Income: Receives core benefits: Universal Credit
-#pbnft13 = "inct_benefit_UC",         # Income types received: Universal Credit 
+#pbnft13   = "inct_benefit_UC",       # Income types received: Universal Credit 
 
 
 
+
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # #
+### Unused ----
+#### Return to Work Credit ----
+#bendis6   = "dis_benefit_return_WC"
+#bentax5   = "tax_benefit_return_WC"
+#othben4   = "oth_benefit_return_WC"
+
+#### Lone Parent In-Work Credit ----
+#othben3   = "oth_benefit_IWC_lp"
+#benfam4   = "fam_benefit_IWC_lp"
+
+#### Other family benefits ----
+#btype7    = "bt_benefit_fam"
+
+#### Rent rebate ----
+#benhou3   = "hou_benefit_rent_r"
+#benhou4   = "hou_benefit_rate_r"
+
+#### National Insurance Credit ----
+#benunemp2 = "unemp_benefit_NIC"
+
+#### Child Benefit ----
+#btype5    = "bt_benefit_CB"
+#benbase3  = "inc_benefit_CB"
+#pbnft6    = "inct_benefit_CB"
+# # # # # # # # # # # # # # # # # # # # # # #
 
 
 
