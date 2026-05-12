@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 07.05.2026                                                                 #
+# Last Update: 12.05.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -17,21 +17,21 @@
 
 alabs<- function(x, kable=TRUE, extended=T){
   tb<- tibble(labels=names(attributes(x)$labels), values=attributes(x)$labels)
-  
+
   if(extended==T) {
     lab<- attributes(x)$label
     cl<- class(x)
     u<- unique(x)
-    
+
     if(kable==T) {
-      
+
       cat(lab, "\n",
           "Class:",cl, "\n",
           "Unique values:", u, "\n",
           "\n"
       )
       print(knitr::kable(tb, caption="Labels"))
-      
+
     }  else {
       cat(lab, "\n",
           "Class:",cl, "\n",
@@ -41,7 +41,7 @@ alabs<- function(x, kable=TRUE, extended=T){
       print(tb)
     }
   } else if (kable==T) {
-    
+
     kable(tb)
   }  else {
     tb
@@ -139,8 +139,15 @@ uk$country <- factor(
   uk$country,
   levels = c(1, 2, 3, 4),
   labels = c("England", "Wales", "Scotland", "Northern Ireland")
-)
+  )
 
+uk$gor_dv <- factor(
+  uk$gor_dv,
+  levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+  labels = c("North East", "North West", "Yorkshire and the Humber", "East Midlands",
+             "West Midlands", "East of England", "London", "South East", "South West",
+             "Wales", "Scotland", "Northern Ireland")
+  )
 
 # Recoding ----
 ## Agegroup ----
@@ -190,6 +197,57 @@ uk <- uk %>%
     )
   )
 
+## Ethnicity ----
+uk <- uk %>%
+  mutate(
+    ethnicity = case_when(
+      racedv == 1
+      ~ 1,
+      racedv %in% c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 97)
+      ~ 2,
+      TRUE ~ NA_real_
+    ),
+    ethnicity = factor(
+      ethnicity,
+      levels = c(1, 2),
+      labels = c("White British", "Other")
+    )
+  )
+
+## Health ----
+uk <- uk %>%
+  mutate(
+    health = case_when(
+      wavename %in% 1:5 & sf1 > 0
+      ~ sf1,
+      
+      wavename >= 6 & scsf1 > 0
+      ~ scsf1,
+      wavename >= 6 & is.na(scsf1) & sf1 > 0
+      ~ sf1,
+      
+      TRUE ~ NA_real_
+    )
+  ) # Ignore label warning!
+
+uk <- uk %>%
+  mutate(
+    health = case_when(
+      health %in% c(1, 2) ~ 1,  # Excellent / Very good
+      health == 3 ~ 2,          # Good
+      health %in% c(4, 5) ~ 3,  # Fair / Poor
+      TRUE ~ NA_real_
+    ),
+    
+    health = factor(
+      health,
+      levels = c(1, 2, 3),
+      labels = c("Excellent/Very good", "Good", "Poor/Fair")
+      )
+    )
+
+
+
 
 ## Marital status ----
 uk <- uk %>%
@@ -219,9 +277,8 @@ uk <- uk %>%
       TRUE                ~ NA_character_
       ),
     lfstat = factor(lfstat,
-                    levels = c("Full/Part-time employed",
-                               "Self-employed",
-                               "Unemployed", "Retired", "Inactive"))
+                    levels = c("Full-time employed", "Part-time employed",
+                               "Self-employed", "Unemployed", "Retired", "Inactive"))
     )
 
 ### Partner ----
@@ -251,13 +308,14 @@ uk <- uk %>%
       hhincoecd < 0 ~ NA_real_,
       TRUE ~ hhincoecd
     ),
-    log_hhincoecd = log1p(hhincoecd)      ## HH-Income (Nettoäquivalenzeinkommen, OECD)
+    log_hhincoecd = log1p(hhincoecd)  ## HH-Income (Nettoäquivalenzeinkommen, OECD)
   )
 
 
 
 
-## Benefits ----
+# Benefits ----
+## Out-of-work benefits ----
 ### JSA ----
 #alabs(uk$unemp_benefit_JSA)          # Income : Unemployment benefits: Job Seeker's Allowance
 #alabs(uk$inc_benefit_JSA)            # Income: Receives core benefits: Job Seeker's Allowance
@@ -313,7 +371,8 @@ uk <- uk %>%
       )
     )
 
-### Housing benefit ----
+## Housing benefit ----
+### HB ----
 #alabs(uk$hou_benefit_HB)                # Receives housing-related benefit(s): Housing Benefit                               (W1-W5)
 #alabs(uk$bt_benefit_CTB)                # Type of benefit or payment: Housing or Council Tax Benefit (other than the single) (W1-W5)
 #alabs(uk$inct_benefit_hous)             # Income types received: Housing Benefit/Rent Rebate                                 (W1-W15)
@@ -336,6 +395,7 @@ uk <- uk %>%
     )
   )
 
+## Personal tax credits ----
 ### CTC ----
 #alabs(uk$chi_benefit_CTC)          # Income: Receives Child Tax Credit       (W1-W15)
 #alabs(uk$tax_benefit_CTC)          # Income: Tax Credits: Child Tax Credit   (W1-W5)
@@ -357,16 +417,49 @@ uk <- uk %>%
   )
 
 ### WTC ----
-#bentax1   = "tax_benefit_WTC",          # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit    (W1-W5)
-#btype6    = "bt_benefit_WTC",           # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child   (W1-W5)
-#pbnft7    = "inct_benefit_WTC",         # Income types received: Working Tax Credit                                          (W1-W15)
-#othben5   = "oth_benefit_WTC",          # Other benefits or credits: Working Tax Credit                                      (W6-W15)
+#alabs(tax_benefit_WTC)          # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit    (W1-W5)
+#alabs(bt_benefit_WTC)           # Type of benefit or payment: Tax credits, such as the Working Tax Credit or Child   (W1-W5)
+#alabs(inct_benefit_WTC)         # Income types received: Working Tax Credit                                          (W1-W15)
+#alabs(oth_benefit_WTC)          # Other benefits or credits: Working Tax Credit                                      (W6-W15)
+uk <- uk %>%
+  mutate(
+    benefit_WTC = case_when(
+      tax_benefit_WTC == 1 |
+        bt_benefit_WTC == 1 |
+        inct_benefit_WTC == 1 |
+        oth_benefit_WTC == 1
+      ~ 1,
+      
+      tax_benefit_WTC == 0 |
+        bt_benefit_WTC == 0 |
+        inct_benefit_WTC == 0 |
+        oth_benefit_WTC == 0
+      ~ 0,
+      TRUE ~ NA_real_
+      )
+    )
 
-### CTS ----
-#benhou2   = "hou_benefit_CTS",          # Receives housing-related benefit(s): Council tax benefit                           (W1-W5)
-#bentax2   = "tax_benefit_CTS",          # Income: Tax Credits: Council Tax Benefit                                           (W1-W5)
+## Other benefits ----
+#### CTS ----
+#benhou2   = "hou_benefit_CTS",          # Receives housing-related benefit(s): Council tax benefit (W1-W5)
+#bentax2   = "tax_benefit_CTS",          # Income: Tax Credits: Council Tax Benefit                 (W1-W5)
+uk <- uk %>%
+  mutate(
+    benefit_CTS = case_when(
+      hou_benefit_CTS == 1  |
+        tax_benefit_CTS == 1  
+      ~ 1,
+      
+      hou_benefit_CTS == 0 |
+        tax_benefit_CTS == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
 
-### UC ----
+
+## Universal credit ----
+#### UC ----
 #bendis11  = "dis_benefit_UC",        # Income: Disability benefits: Universal Credit
 #benhou5   = "hou_benefit_UC",        # Receives housing-related benefit(s): Universal Credit
 #bentax6   = "tax_benefit_UC",        # Income: Tax Credits: Universal Credit
@@ -379,31 +472,28 @@ uk <- uk %>%
 
 
 
-
-
-
 # # # # # # # # # # # # # # # # # # # # # # #
-### Unused ----
-#### Return to Work Credit ----
+## Unused ----
+### Return to Work Credit ----
 #bendis6   = "dis_benefit_return_WC"
 #bentax5   = "tax_benefit_return_WC"
 #othben4   = "oth_benefit_return_WC"
 
-#### Lone Parent In-Work Credit ----
+### Lone Parent In-Work Credit ----
 #othben3   = "oth_benefit_IWC_lp"
 #benfam4   = "fam_benefit_IWC_lp"
 
-#### Other family benefits ----
+### Other family benefits ----
 #btype7    = "bt_benefit_fam"
 
-#### Rent rebate ----
+### Rent rebate ----
 #benhou3   = "hou_benefit_rent_r"
 #benhou4   = "hou_benefit_rate_r"
 
-#### National Insurance Credit ----
+### National Insurance Credit ----
 #benunemp2 = "unemp_benefit_NIC"
 
-#### Child Benefit ----
+### Child Benefit ----
 #btype5    = "bt_benefit_CB"
 #benbase3  = "inc_benefit_CB"
 #pbnft6    = "inct_benefit_CB"
