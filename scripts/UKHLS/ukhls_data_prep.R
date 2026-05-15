@@ -114,7 +114,7 @@ new_var_names <- c(hhnetinc              = "fihhmnnet1_dv",         # total hous
                    inct_benefit_JSA      = "pbnft4",                # Income types received: Job Seekers Allowance (Unemployment) and/or Income Support  (W1-W15)
                    inct_benefit_ESA      = "pbnft5",                # Income types received: Employment and Support Allowance                            (W1-W15)
                    inct_benefit_CB       = "pbnft6",                # Income types received: Child Benefit                                               (W1-W15)
-                   #inct_benefit_WTC      = "pbnft7",               # Income types received: Working Tax Credit                                          (W1-W15)
+                   inct_benefit_WTC      = "pbnft7",               # Income types received: Working Tax Credit                                          (W1-W15)
                    inct_benefit_hous     = "pbnft8",                # Income types received: Housing Benefit/Rent Rebate                                 (W1-W15)
                    #inct_benefit_IB      = "pbnft9",                # Income types received: Incapacity Benefit (Replaces Invalidity and NI Sickness)    (W1-W15)
                    inct_benefit_CTC      = "pbnft11",               # Income types received: Child Tax Credit                                            (W1-W15)
@@ -150,21 +150,15 @@ uk$gor_dv <- factor(
   )
 
 # Recoding ----
-## Agegroup ----
-# uk <- uk %>%
-#   mutate(
-#     agegrp = case_when(
-#       age >= 15 & age <= 20 ~ 0,
-#       age >= 21 & age <= 25 ~ 1,
-#       age >= 26 & age <= 30 ~ 2,
-#       age >= 31 & age <= 35 ~ 3,
-#       age >= 36 & age <= 40 ~ 4,
-#       age >= 41 & age <= 45 ~ 5,
-#       age >= 46 & age <= 50 ~ 6,
-#       age >= 51 & age <= 55 ~ 7,
-#       TRUE ~ NA_real_
-#       )
-#     )
+## Age ----
+uk <- uk %>%
+  mutate(
+    age = case_when(
+      wavename == 5 & agdv >= 0 ~ agdv,
+      wavename != 5 & age_dv >= 0 ~ age_dv,
+      TRUE ~ NA_real_
+    )
+  )
 
 
 ## Sex ----
@@ -200,11 +194,24 @@ uk <- uk %>%
 ## Ethnicity ----
 uk <- uk %>%
   mutate(
+    ethnicity_raw = case_when(
+      ethn_dv > 0 ~ ethn_dv,
+      racel_dv > 0 ~ racel_dv,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  group_by(pidp) %>%
+  tidyr::fill(ethnicity_raw, .direction = "downup") %>%
+  ungroup()
+
+uk <- uk %>%
+  mutate(
     ethnicity = case_when(
-      racedv == 1
-      ~ 1,
-      racedv %in% c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 97)
-      ~ 2,
+      ethnicity_raw == 1 ~ 1,
+      ethnicity_raw %in% c(
+        2, 3, 4, 5, 6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15, 16, 17, 97
+      ) ~ 2,
       TRUE ~ NA_real_
     ),
     ethnicity = factor(
@@ -213,6 +220,8 @@ uk <- uk %>%
       labels = c("White British", "Other")
     )
   )
+
+
 
 ## Health ----
 uk <- uk %>%
@@ -247,19 +256,19 @@ uk <- uk %>%
     )
 
 
-
-
-## Marital status ----
+## Relationship Status ----
 uk <- uk %>%
   mutate(
-    marstat3 = case_when(
-      marstat == 1 ~ "Married",
-      marstat == 2 ~ "Divorced",
-      marstat == 3 ~ "Widowed",
-      TRUE         ~ NA_character_ # 1 Single; 3 same sex; 4 separated but legally married; 7 separated; 8; 9 
+    relstat2 = case_when(
+      livewith == 1 ~ 2,
+      marstat == 2 ~ 1,
+      TRUE ~ NA_real_
     ),
-    marstat3 = factor(marstat3,
-                      levels = c("Married", "Divorced", "Widowed"))
+    relstat2 = factor(
+      relstat2,
+      levels = c(1, 2),
+      labels = c("Cohabiting", "Married")
+    )
   )
 #table(uk$livesp) # Live with spouse 
 
@@ -309,6 +318,26 @@ uk <- uk %>%
       TRUE ~ hhincoecd
     ),
     log_hhincoecd = log1p(hhincoecd)  ## HH-Income (Nettoäquivalenzeinkommen, OECD)
+  )
+
+### Quartiles ----
+uk <- uk %>%
+  group_by(wavename) %>% # quartiles calculated separately per wave
+  mutate(
+    q_hhincoecd = ntile(hhincoecd, 4)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    q_hhincoecd = factor(
+      q_hhincoecd,
+      levels = c(1, 2, 3, 4),
+      labels = c(
+        "1st quartile",
+        "2nd quartile",
+        "3rd quartile",
+        "4th quartile"
+      )
+    )
   )
 
 
@@ -400,21 +429,23 @@ uk <- uk %>%
 #alabs(uk$chi_benefit_CTC)          # Income: Receives Child Tax Credit       (W1-W15)
 #alabs(uk$tax_benefit_CTC)          # Income: Tax Credits: Child Tax Credit   (W1-W5)
 #alabs(uk$inct_benefit_CTC)         # Income types received: Child Tax Credit (W1-W15)
-uk <- uk %>%
-  mutate(
-    benefit_CTC = case_when(
-      chi_benefit_CTC == 1 |
-        tax_benefit_CTC == 1 |
-        inct_benefit_CTC == 1
-      ~ 1,
-      
-      chi_benefit_CTC == 2 |
-        tax_benefit_CTC == 0 |
-        inct_benefit_CTC == 0
-      ~ 0,
-      TRUE ~ NA_real_
-    )
-  )
+
+## !Not used as means-tested for now!
+# uk <- uk %>%
+#   mutate(
+#     benefit_CTC = case_when(
+#       chi_benefit_CTC == 1 |
+#         tax_benefit_CTC == 1 |
+#         inct_benefit_CTC == 1
+#       ~ 1,
+#       
+#       chi_benefit_CTC == 2 |
+#         tax_benefit_CTC == 0 |
+#         inct_benefit_CTC == 0
+#       ~ 0,
+#       TRUE ~ NA_real_
+#     )
+#   )
 
 ### WTC ----
 #alabs(tax_benefit_WTC)          # Income: Tax Credits: Working Tax Credit, including Disabled Person's Tax Credit    (W1-W5)
@@ -499,10 +530,81 @@ uk <- uk %>%
 #pbnft6    = "inct_benefit_CB"
 # # # # # # # # # # # # # # # # # # # # # # #
 
+# IV ----
+## OOW Benefits -----
+uk <- uk %>%
+  mutate(
+    benefit_OOW = case_when(
+      benefit_JSA == 1 |
+        benefit_IS == 1 |
+        benefit_ESA == 1
+      ~ 1,
+      
+      benefit_JSA == 0 |
+        benefit_IS == 0 |
+        benefit_ESA == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
 
+## IW-Benefits ----
+uk <- uk %>%
+  mutate(
+    benefit_IWB = case_when(
+      benefit_HB == 1 |
+        benefit_WTC == 1
+      ~ 1,
+      
+      benefit_HB == 0 | 
+        benefit_WTC == 0
+      ~ 0,
+      TRUE ~ NA_real_
+    )
+  )
+
+## Other ----
+table(uk$benefit_HB)
+table(uk$benefit_CTS)
+ 
 
 
 # Sample reduction ----
 ## Age ----
 uk <- uk %>%
-  filter(age_dv >= 15) # Drop samples younger than 15
+  filter(age >= 15) # Drop samples younger than 15
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# FE data ----
+
+
+
+# RE data ----
+
