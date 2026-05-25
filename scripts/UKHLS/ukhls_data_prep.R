@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 12.05.2026                                                                 #
+# Last Update: 19.05.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -352,14 +352,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_JSA = case_when(
-      unemp_benefit_JSA == 1  |
-        inc_benefit_JSA == 1  |
-        inct_benefit_JSA == 1  
+      unemp_benefit_JSA == 1  | inc_benefit_JSA == 1  | inct_benefit_JSA == 1  
       ~ 1,
       
-      unemp_benefit_JSA == 0 |
-        inc_benefit_JSA == 0 |
-        inct_benefit_JSA == 0
+      unemp_benefit_JSA == 0 | inc_benefit_JSA == 0 | inct_benefit_JSA == 0
       ~ 0,
       TRUE ~ NA_real_
     )
@@ -372,12 +368,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_IS = case_when(
-      bt_benefit_IS == 1 |
-        inc_benefit_IS == 1
+      bt_benefit_IS == 1 | inc_benefit_IS == 1
       ~ 1,
       
-      bt_benefit_IS == 0 |
-        inc_benefit_IS == 0
+      bt_benefit_IS == 0 | inc_benefit_IS == 0
       ~ 0,
       TRUE ~ NA_real_
     )
@@ -389,12 +383,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_ESA = case_when(
-      dis_benefit_ESA == 1 |
-        inct_benefit_ESA == 1
+      dis_benefit_ESA == 1 | inct_benefit_ESA == 1
       ~ 1,
       
-      dis_benefit_ESA == 0 |
-        inct_benefit_ESA == 0
+      dis_benefit_ESA == 0 | inct_benefit_ESA == 0
       ~ 0,
       TRUE ~ NA_real_
       )
@@ -409,16 +401,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_HB = case_when(
-      hou_benefit_HB == 1 |
-        bt_benefit_CTB == 1 |
-        inct_benefit_hous == 1 |
-        oth_benefit_hous == 1
+      hou_benefit_HB == 1 | bt_benefit_CTB == 1 | inct_benefit_hous == 1 | oth_benefit_hous == 1
       ~ 1,
       
-      hou_benefit_HB == 0 |
-        bt_benefit_CTB == 0 |
-        inct_benefit_hous == 0 |
-        oth_benefit_hous == 0
+      hou_benefit_HB == 0 | bt_benefit_CTB == 0 | inct_benefit_hous == 0 | oth_benefit_hous == 0
       ~ 0,
       TRUE ~ NA_real_
     )
@@ -455,16 +441,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_WTC = case_when(
-      tax_benefit_WTC == 1 |
-        bt_benefit_WTC == 1 |
-        inct_benefit_WTC == 1 |
-        oth_benefit_WTC == 1
+      tax_benefit_WTC == 1 | bt_benefit_WTC == 1 | inct_benefit_WTC == 1 | oth_benefit_WTC == 1
       ~ 1,
       
-      tax_benefit_WTC == 0 |
-        bt_benefit_WTC == 0 |
-        inct_benefit_WTC == 0 |
-        oth_benefit_WTC == 0
+      tax_benefit_WTC == 0 | bt_benefit_WTC == 0 | inct_benefit_WTC == 0 | oth_benefit_WTC == 0
       ~ 0,
       TRUE ~ NA_real_
       )
@@ -477,12 +457,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_CTS = case_when(
-      hou_benefit_CTS == 1  |
-        tax_benefit_CTS == 1  
+      hou_benefit_CTS == 1  | tax_benefit_CTS == 1  
       ~ 1,
       
-      hou_benefit_CTS == 0 |
-        tax_benefit_CTS == 0
+      hou_benefit_CTS == 0 | tax_benefit_CTS == 0
       ~ 0,
       TRUE ~ NA_real_
     )
@@ -498,7 +476,6 @@ uk <- uk %>%
 #btype10   = "bt_benefit_UC",         # Type of benefit or payment: Universal Credit
 #benbase4  = "inc_benefit_UC",        # Income: Receives core benefits: Universal Credit
 #pbnft13   = "inct_benefit_UC",       # Income types received: Universal Credit 
-
 
 
 
@@ -535,14 +512,10 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_OOW = case_when(
-      benefit_JSA == 1 |
-        benefit_IS == 1 |
-        benefit_ESA == 1
+      benefit_JSA == 1 | benefit_IS == 1 | benefit_ESA == 1
       ~ 1,
       
-      benefit_JSA == 0 |
-        benefit_IS == 0 |
-        benefit_ESA == 0
+      benefit_JSA == 0 | benefit_IS == 0 | benefit_ESA == 0
       ~ 0,
       TRUE ~ NA_real_
     )
@@ -552,59 +525,51 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_IWB = case_when(
-      benefit_HB == 1 |
-        benefit_WTC == 1
+      benefit_HB == 1 | benefit_WTC == 1
       ~ 1,
       
-      benefit_HB == 0 | 
-        benefit_WTC == 0
+      benefit_HB == 0 | benefit_WTC == 0
       ~ 0,
       TRUE ~ NA_real_
     )
   )
 
-## Other ----
-table(uk$benefit_HB)
-table(uk$benefit_CTS)
- 
 
 
-# Sample reduction ----
-## Age ----
+
+# Sample reduction AGE ----
 uk <- uk %>%
   filter(age >= 15) # Drop samples younger than 15
 
+## Negative values ----
+uk <- uk %>%
+  mutate(
+    rel_happy = case_when(
+      rel_happy < 0 ~ NA_real_,
+      TRUE ~ rel_happy
+    )
+  )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# FE data ----
+## Missings ----
+# missings <- c(
+#   "rel_happy",
+#   "benefit_OOW", "benefit_IWB",
+#   "log_hhincoecd",
+# 
+#   "relstat2",
+#   "nchild_dv",
+#   "lfstat",
+# 
+#   "health",
+#   "age", "wavename"
+#   )
+# 
+# ## Remove NAs ----
+# prop.table(table(complete.cases(uk_FE[missings])))
+# uk_FE <- uk_FE[complete.cases(uk_FE[missings]), ]
+# rm(new_var_names, missings)
 
 
 
 # RE data ----
-
+#uk_RE <- uk

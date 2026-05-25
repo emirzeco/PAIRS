@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 12.05.2026                                                                 #
+# Last Update: 15.05.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -67,7 +67,8 @@ indvars <- c("qfhigh_dv age_dv benbase1 benbase2 benbase3 benbase4 benbase96 ben
 
 ## Child ----
 ## These variables from the child files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-chvars <- c("age_dv chddvg2_xw chddvub_lw chddvub_xw chddvui_lw chddvui_xw country gor_dv hhsize hidp iviolw pidp pno ppsex psnen01_lw psnen91_lw psneng2_lw psneng2_xw psnenub_lw psnenub_xw psnenui_lw psnenui_xw psnenus_lw psnenus_xw psu sex sex_dv strata urban_dv")
+chvars <- NULL
+#c("age_dv chddvg2_xw chddvub_lw chddvub_xw chddvui_lw chddvui_xw country gor_dv hhsize hidp iviolw pidp pno ppsex psnen01_lw psnen91_lw psneng2_lw psneng2_xw psnenub_lw psnenub_xw psnenui_lw psnenui_xw psnenus_lw psnenus_xw psu sex sex_dv strata urban_dv")
 
 ## HH ----
 ## These variables from the hhresp files will be included. These include some key variables as determined by us PLUS any variables requested by you.
@@ -75,7 +76,8 @@ hhvars <- c("country fihhmnnet1_dv fihhmnprben_dv gor_dv hhden01_xw hhden91_xw h
 
 ## Youth ----
 ## These variables from the youth files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-youthvars <- c("age_dv country ethn_dv gor_dv hidp pidp pno psu racel_dv sex sex_dv strata urban_dv ypsmlw ypwklw ythscg2_xw ythscub_xw ythscui_xw ythscus_xw")
+youthvars <- NULL
+#c("age_dv country ethn_dv gor_dv hidp pidp pno psu racel_dv sex sex_dv strata urban_dv ypsmlw ypwklw ythscg2_xw ythscub_xw ythscui_xw ythscus_xw")
 
 ## Nurse ----
 ## These variables from the nurse labblood file will be included. These include some key variables as determined by us PLUS any variables requested by you. 
@@ -158,10 +160,12 @@ for (wave in allWaves) {
   waveindallvars <- getVars(indallvars, wave)
   
   # find the wave child vars
-  wavechvars <- getVars(chvars, wave)
+  wavechvars <- NULL
+  #getVars(chvars, wave)
   
   # find the wave youth vars
-  waveyouthvars <- getVars(youthvars, wave)
+  waveyouthvars <- NULL
+  #getVars(youthvars, wave)
   
   # open the the household level file with the required variable
   hhresp_dat <- read_dta(paste0(ukhls, "/", wave, "_hhresp.dta"))
