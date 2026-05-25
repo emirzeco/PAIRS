@@ -197,10 +197,10 @@ p <- p %>%
 p <- p %>%
   mutate(
     benefit_dummy = case_when(
-      aII         %in% c(0, 7) &
-        grundsich %in% c(0, 7) &
-        sozhilfe  %in% c(0, 7) ~ 0,
-      aII == 1 | grundsich == 1 | sozhilfe == 1 ~ 1,
+      grundsich == 1 | aII == 1 | sozhilfe == 1
+      ~ 1,
+      grundsich == 0 | aII == 0 | sozhilfe == 0
+      ~ 0,
       TRUE ~ NA_real_
     )
   )
@@ -246,23 +246,23 @@ p <- p %>%
 
 
 # Missings ----
-missings <- c(
+#missings <- c(
 #"grundsich", "aII", "sozhilfe",
-"wohngeld",
-"benefit_dummy",
-"satrelship",
-#"p_satrelship",   # Relationship satisfaction
-
-"relstat2",
-"reldur",
-
-"age","cohort", "sex",
-"lifesat",                      # Life satisfaction
-"nkidsliv",                     # children in HH 
-#"pmrd",                        # Partner lives in household
-"lfstat", "p_lfstat",           # Labor force status (anchor, partner)
-
-"log_hhincgcee"
+#"wohngeld",
+#"benefit_dummy",
+#"satrelship",
+##"p_satrelship",   # Relationship satisfaction
+#
+#"relstat2",
+#"reldur",
+#
+#"age","cohort", "sex",
+#"lifesat",                      # Life satisfaction
+#"nkidsliv",                     # children in HH 
+##"pmrd",                        # Partner lives in household
+#"lfstat", "p_lfstat",           # Labor force status (anchor, partner)
+#
+#"log_hhincgcee"
 #"log_hhincoecd",
 # "hhincnet",
 #"sub_fin_hh",
@@ -270,13 +270,13 @@ missings <- c(
 #"hlt1"
 # "pcs",          # Summary score physical health
 # "mcs"           # Summary score mental health
-)
+#)
 
 ## Remove NAs ----
-p_reduc <- p
-prop.table(table(complete.cases(p_reduc[missings])))
-p_reduc <- p_reduc[complete.cases(p_reduc[missings]), ]
-rm(missings, new_var_names, vars_neg_na)
+# p_reduc <- p
+# prop.table(table(complete.cases(p_reduc[missings])))
+# p_reduc <- p_reduc[complete.cases(p_reduc[missings]), ]
+# rm(missings, new_var_names, vars_neg_na)
 
 
 

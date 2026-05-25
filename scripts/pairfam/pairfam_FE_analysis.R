@@ -149,8 +149,7 @@ M3d <- plm(
     log_hhincgcee +
     relstat2  +
     lfstat + p_lfstat + 
-    nkidsliv + hlt1 + 
-    reldur + wave,
+    nkidsliv + hlt1,
   data = p_reduc,
   index = c("id", "wave"),
   model = "within"
@@ -420,18 +419,9 @@ M16a <- plm(
   model = "within"
 )
 
+
 ### M16b ----
 M16b <- plm(
-  satrelship ~ benefit_dummy +
-    relstat2  +
-    nkidsliv + hlt1 + wave,
-  data = p_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
-
-### M16c ----
-M16c <- plm(
   satrelship ~ benefit_dummy +
     relstat2  +
     nkidsliv + hlt1 + 
@@ -453,19 +443,8 @@ M17a <- plm(
   model = "within"
 )
 
-
 ### M17b ----
 M17b <- plm(
-  satrelship ~ wohngeld +
-    relstat2  +
-    nkidsliv + hlt1 + wave,
-  data = p_reduc,
-  index = c("id", "wave"),
-  model = "within"
-)
-
-### M17c ----
-M17c <- plm(
   satrelship ~ wohngeld +
     relstat2  +
     nkidsliv + hlt1 + 
@@ -474,17 +453,6 @@ M17c <- plm(
   index = c("id", "wave"),
   model = "within"
 )
-
-
-
-
-
-
-
-
-
-
-
 
 
 
