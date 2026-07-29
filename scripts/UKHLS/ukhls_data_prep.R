@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 26.07.2026                                                                 #
+# Last Update: 01.08.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -49,7 +49,8 @@ alabs<- function(x, kable=TRUE, extended=T){
 }
 
 packages <- c("tidyverse", "haven", "pastecs", "datawizard", #"convenience",
-              "ggplot2", "ggrepel", "sjPlot", "lme4", "knitr", "kableExtra", 
+              "ggplot2", "ggalluvial", "ggthemes", "viridis", "ggrepel",
+              "sjPlot", "lme4", "knitr", "kableExtra", 
               "stringr", "flextable", "officer", "sf", "plm", "stargazer",
               "patchwork", "tidytext", "sjlabelled")
 install.packages(setdiff(packages, rownames(installed.packages())))
@@ -60,12 +61,16 @@ options(max.print=10000)
 
 
 ## Load ----
-uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/UKHLS_long.rds")
+uk <- readRDS("data/UKHLS_long.rds")
 #uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
 
 ## Rename ----
-new_var_names <- c(hhnetinc              = "fihhmnnet1_dv",         # total household net income - no deductions
-                   hhincoecd             = "ieqmoecd_dv",           # Modified OECD equivalence scale
+new_var_names <- c(wave                  = "wavename",              # Wave
+                   
+                   hhnetinc              = "fihhmnnet1_dv",         # total household net income - no deductions
+                   hhgrsinc              = "fihhmngrs_dv",          # gross household income: month before interview
+                   
+                   oecdscale             = "ieqmoecd_dv",           # Modified OECD equivalence scale
                    
                    hhbenefitinc_lag      = "fihhmnprben_dv",        # total household private benefit income: month before interview
                    hhbenefitinc          = "fimnsben_dv",           # amount income component 7: social benefit income
@@ -154,8 +159,8 @@ uk$gor_dv <- factor(
 uk <- uk %>%
   mutate(
     age = case_when(
-      wavename == 5 & agdv >= 0 ~ agdv,
-      wavename != 5 & age_dv >= 0 ~ age_dv,
+      wave  == 5 & agdv >= 0 ~ agdv,
+      wave  != 5 & age_dv >= 0 ~ age_dv,
       TRUE ~ NA_real_
     )
   )
@@ -311,91 +316,122 @@ uk <- uk %>%
 
 
 ## Income ----
-### Log ----
-#### OECD ----
 uk <- uk %>%
   mutate(
-    hhincoecd = case_when(
-      hhincoecd < 0 ~ NA_real_,
-      TRUE ~ hhincoecd
+    hhnetinc = case_when(
+      hhnetinc >= 0 ~ as.numeric(hhnetinc),
+      hhnetinc < 0 ~ 0
     ),
-    log_hhincoecd = log1p(hhincoecd)  ## HH-Income (Nettoäquivalenzeinkommen, OECD)
+    
+    hhgrsinc = case_when(
+      hhgrsinc >= 0 ~ as.numeric(hhgrsinc),
+      hhgrsinc < 0 ~ 0
+    ),
+    
+    oecdscale = case_when(
+      oecdscale > 0 ~ as.numeric(oecdscale),
+      TRUE ~ NA_real_
+    )
   )
 
-### Quartiles ----
+### OECD ----
 uk <- uk %>%
-  group_by(wavename) %>% # Quartiles calculated separately per wave
   mutate(
-    q_hhincoecd = ntile(hhincoecd, 4)
-  ) %>%
-  ungroup() %>%
+    hhnetinc_oecd = hhnetinc / oecdscale,
+    hhgrsinc_oecd = hhgrsinc / oecdscale
+  )
+
+### Log ----
+uk <- uk %>%
   mutate(
-    q_hhincoecd = factor(
-      q_hhincoecd,
-      levels = c(1, 2, 3, 4),
-      labels = c(
-        "1st quartile",
-        "2nd quartile",
-        "3rd quartile",
-        "4th quartile")
-      )
-    )
+    log_hhnetinc_oecd = log(hhnetinc_oecd + 1), 
+    log_hhgrsinc_oecd = log(hhgrsinc_oecd + 1)
+  )
 
 
 # Benefits ----
 ## Means-tested ----
-### JSA ----
-inc_benefit_JSA
-unemp_benefit_JSA
-inct_benefit_JSA
-bt_benefit_unemp
-
-### IS ----
-bt_benefit_IS
-inc_benefit_IS
-
-### Housing ----
-oth_benefit_hous
-inct_benefit_hous
-hou_benefit_HB
-
-### CTC ----
-chi_benefit_CTC
-tax_benefit_CTS
-
-### WTC ----
-bt_benefit_WTC
-oth_benefit_WTC
-tax_benefit_WTC
-inct_benefit_WTC
-oth_benefit_IWC_lp
-
-
-### UC ----
-unemp_benefit_UC
-inct_benefit_UC
-bt_benefit_UC
-inc_benefit_UC
-dis_benefit_UC
-hou_benefit_UC
-tax_benefit_UC
-
-
-
-
-
-
-
-
-
-
+uk <- uk %>%
+  mutate(
+    benefit_MT = case_when(
+      if_any(
+        c(
+          # JSA
+          inc_benefit_JSA,
+          unemp_benefit_JSA,
+          inct_benefit_JSA,
+          bt_benefit_unemp,
+          
+          # Income Support
+          bt_benefit_IS,
+          inc_benefit_IS,
+          
+          # Housing Benefit
+          oth_benefit_hous,
+          inct_benefit_hous,
+          hou_benefit_HB,
+          
+          # CTC
+          chi_benefit_CTC,
+          tax_benefit_CTS,
+          
+          # Working Tax Credit
+          bt_benefit_WTC,
+          oth_benefit_WTC,
+          tax_benefit_WTC,
+          inct_benefit_WTC,
+          oth_benefit_IWC_lp,
+          
+          # Universal Credit
+          unemp_benefit_UC,
+          inct_benefit_UC,
+          bt_benefit_UC,
+          inc_benefit_UC,
+          dis_benefit_UC,
+          hou_benefit_UC,
+          tax_benefit_UC
+        ),
+        ~ .x == 1
+      ) ~ 1,
+      
+      if_any(
+        c(
+          inc_benefit_JSA,
+          unemp_benefit_JSA,
+          inct_benefit_JSA,
+          bt_benefit_unemp,
+          bt_benefit_IS,
+          inc_benefit_IS,
+          oth_benefit_hous,
+          inct_benefit_hous,
+          hou_benefit_HB,
+          chi_benefit_CTC,
+          tax_benefit_CTS,
+          bt_benefit_WTC,
+          oth_benefit_WTC,
+          tax_benefit_WTC,
+          inct_benefit_WTC,
+          oth_benefit_IWC_lp,
+          unemp_benefit_UC,
+          inct_benefit_UC,
+          bt_benefit_UC,
+          inc_benefit_UC,
+          dis_benefit_UC,
+          hou_benefit_UC,
+          tax_benefit_UC
+        ),
+        ~ .x == 0
+      ) ~ 0,
+      
+      TRUE ~ NA_real_
+    )
+  )
 
 
 
 # Sample reduction AGE ----
 uk <- uk %>%
   filter(age >= 15) # Drop samples younger than 15
-
 
 
 ## Missings ----
@@ -409,15 +445,14 @@ uk <- uk %>%
 #   "lfstat",
 # 
 #   "health",
-#   "age", "wavename"
+#   "age", "wave "
 #   )
 # 
-# ## Remove NAs ----
+## Remove NAs ----
 # prop.table(table(complete.cases(uk_FE[missings])))
 # uk_FE <- uk_FE[complete.cases(uk_FE[missings]), ]
 # rm(new_var_names, missings)
 
 
-
-# RE data ----
-#uk_RE <- uk
+# Save ----
+saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")

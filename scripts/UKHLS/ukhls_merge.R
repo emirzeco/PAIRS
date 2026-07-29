@@ -72,7 +72,7 @@ chvars <- NULL
 
 ## HH ----
 ## These variables from the hhresp files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-hhvars <- c("country fihhmnnet1_dv fihhmnprben_dv gor_dv hhden01_xw hhden91_xw hhden99_xw hhdeng2_xw hhdenub_xw hhdenui_xw hhdenus_xw hhsize hhtype_dv hidp hsivlw ieqmoecd_dv nkids_dv psu strata tenure_dv urban_dv xpgaslw xpleclw")
+hhvars <- c("country fihhmnnet1_dv fihhmngrs_dv fihhmnprben_dv gor_dv hhden01_xw hhden91_xw hhden99_xw hhdeng2_xw hhdenub_xw hhdenui_xw hhdenus_xw hhsize hhtype_dv hidp hsivlw ieqmoecd_dv nkids_dv psu strata tenure_dv urban_dv xpgaslw xpleclw")
 
 ## Youth ----
 ## These variables from the youth files will be included. These include some key variables as determined by us PLUS any variables requested by you.
