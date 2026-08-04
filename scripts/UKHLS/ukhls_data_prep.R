@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 01.08.2026                                                                 #
+# Last Update: 05.08.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -230,6 +230,48 @@ uk <- uk %>%
 #   )
 
 
+## OECD scale ----
+oecd_wave4 <- read_dta(
+  file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
+) %>%
+  transmute(
+    hidp = d_hidp,
+    oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
+  ) # correct for merging error in wave 4
+
+uk <- uk %>%
+  left_join(
+    oecd_wave4,
+    by = "hidp"
+  ) %>%
+  mutate(
+    oecdscale = if_else(
+      wave == 4,
+      oecdscale_wave4,
+      oecdscale
+    )
+  ) %>%
+  select(-oecdscale_wave4) 
+
+uk <- uk %>%
+  mutate(
+    oecdscale = if_else(
+      oecdscale < 0,
+      NA_real_,
+      oecdscale
+    )
+  ) # remove missings
+
+
+## Life sat ----
+uk <- uk %>%
+  mutate(
+    life_sat = case_when(
+      sclfsato < 0 ~ NA_real_,
+      TRUE ~ sclfsato
+    )
+  )
+
 
 ## Health ----
 ### Physical Health ----
@@ -276,6 +318,20 @@ uk <- uk %>%
       TRUE ~ rel_happy
     )
   )
+
+
+## NChild ----
+uk <- uk %>%
+  mutate(
+    nchild = case_when(
+      wave == 4 & nchildv >= 0 ~ nchildv,
+      wave != 4 & nchild_dv >= 0 ~ nchild_dv,
+      TRUE ~ NA_real_
+    )
+  ) # Wave 4 not available for nchild_dv
+
+
+
 
 
 
@@ -344,8 +400,8 @@ uk <- uk %>%
 ### Log ----
 uk <- uk %>%
   mutate(
-    log_hhnetinc_oecd = log(hhnetinc_oecd + 1), 
-    log_hhgrsinc_oecd = log(hhgrsinc_oecd + 1)
+    log_hhnetinc_oecd = log(hhnetinc_oecd + 10), 
+    log_hhgrsinc_oecd = log(hhgrsinc_oecd + 10)
   )
 
 
@@ -455,4 +511,5 @@ uk <- uk %>%
 
 
 # Save ----
+rm(oecd_wave4, new_var_names)
 saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
