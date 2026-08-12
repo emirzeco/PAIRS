@@ -50,7 +50,7 @@ alabs<- function(x, kable=TRUE, extended=T){
 
 packages <- c("tidyverse", "haven", "pastecs", "datawizard", #"convenience",
               "ggplot2", "ggalluvial", "ggthemes", "viridis", "ggrepel",
-              "sjPlot", "lme4", "knitr", "kableExtra", 
+              "sjPlot", "lme4", "knitr", "kableExtra", "gt", "survey",
               "stringr", "flextable", "officer", "sf", "plm", "stargazer",
               "patchwork", "tidytext", "sjlabelled")
 install.packages(setdiff(packages, rownames(installed.packages())))
@@ -61,8 +61,8 @@ options(max.print=10000)
 
 
 ## Load ----
-uk <- readRDS("data/UKHLS_long.rds")
-#uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
+#uk <- readRDS("data/UKHLS_long.rds")
+uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
 
 ## Rename ----
 new_var_names <- c(wave                  = "wavename",              # Wave
@@ -138,6 +138,18 @@ new_var_names <- c(wave                  = "wavename",              # Wave
                    )
 uk <- rename(uk,
             all_of(new_var_names))
+
+## Weight ----
+o_indresp <- read_dta("PAIRS/data/UKHLS/o_indresp.dta",  encoding = "latin1")
+weight_w15 <- o_indresp %>%
+  select(pidp, o_indinus_lw)
+uk <- uk %>%
+  select(-any_of("o_indinus_lw")) %>%
+  left_join(
+    weight_w15,
+    by = "pidp"
+  )
+
 
 ## Factor transf ----
 uk$country <- factor(
@@ -232,12 +244,23 @@ uk <- uk %>%
 
 ## OECD scale ----
 oecd_wave4 <- read_dta(
-  file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
+  file.path("~/PAIRS/data/UKHLS/d_hhresp.dta")
 ) %>%
   transmute(
     hidp = d_hidp,
     oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
   ) # correct for merging error in wave 4
+
+
+# oecd_wave4 <- read_dta(
+#   file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
+# ) %>%
+#   transmute(
+#     hidp = d_hidp,
+#     oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
+#   ) # correct for merging error in wave 4
+
+
 
 uk <- uk %>%
   left_join(
@@ -370,6 +393,19 @@ uk <- uk %>%
                                  "Unemployed", "Retired", "Inactive"))
     )
 
+### Paid work ----
+uk <- uk %>%
+  mutate(
+    job = case_when(
+      jbhas < 0 ~ NA_real_,
+      TRUE ~ jbhas
+    ),
+    job = factor(
+      job,
+      levels = c(1, 2),
+      labels = c("Paid work", "No paid work")
+    )
+  )
 
 ## Income ----
 uk <- uk %>%
@@ -511,5 +547,6 @@ uk <- uk %>%
 
 
 # Save ----
-rm(oecd_wave4, new_var_names)
-saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+rm(oecd_wave4, new_var_names, o_indresp, weight_w15)
+#saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+saveRDS(uk, "~/PAIRS/data/uk.rds")
