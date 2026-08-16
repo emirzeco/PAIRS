@@ -898,32 +898,68 @@ uk %>%
 ```
 
 
+#### Dyadic Adjustment Scale: Relationship satisfaction
+
+```{r, echo=FALSE}
+uk %>%
+  filter(!is.na(lfstat)) %>%
+  filter(!is.na(benefit_MT)) %>%
+  filter(!is.na(DAS_rel_sat)) %>%
+  ggplot(aes(
+    wave,
+    DAS_rel_sat,
+    color = factor(
+      benefit_MT,
+      labels = c(
+        "No means-tested benefit receipt",
+        "Means-tested benefit receipt"
+      )
+    ),
+    group = benefit_MT
+  )) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ lfstat) +
+  theme_bw() +
+  labs(
+    x = "Wave",
+    y = "Dyadic Adjustment Scale: Relationship satisfaction",
+    color = "Means-tested benefit"
+  )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+uk %>%
+  filter(
+    !is.na(job),
+    !is.na(benefit_MT),
+    !is.na(DAS_rel_sat)
+  ) %>%
+  ggplot(
+    aes(
+      x = wave,
+      y = DAS_rel_sat,
+      color = interaction(
+        factor(
+          benefit_MT,
+          levels = c(0, 1),
+          labels = c(
+            "No means-tested benefit receipt",
+            "Means-tested benefit receipt"
+          )
+        ),
+        job,
+        sep = " - "
+      ),
+      group = interaction(benefit_MT, job)
+    )
+  ) +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  labs(
+    x = "Wave",
+    y = "Dyadic Adjustment Scale: Relationship satisfaction",
+    color = "Benefit status and Paid Work (Last Week)"
+  )
+```
 
 
 
