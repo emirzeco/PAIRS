@@ -2210,7 +2210,8 @@ vertical-align: -.125em;
    
   <ul>
   <li><a href="#means-tested-benefit-coding" id="toc-means-tested-benefit-coding" class="nav-link active" data-scroll-target="#means-tested-benefit-coding">Means-tested benefit coding</a></li>
-  <li><a href="#unweighted-descriptives" id="toc-unweighted-descriptives" class="nav-link" data-scroll-target="#unweighted-descriptives">unweighted descriptives</a></li>
+  <li><a href="#sample-restriction" id="toc-sample-restriction" class="nav-link" data-scroll-target="#sample-restriction">Sample restriction</a></li>
+  <li><a href="#unweighted-descriptives" id="toc-unweighted-descriptives" class="nav-link" data-scroll-target="#unweighted-descriptives">Unweighted descriptives</a></li>
   <li><a href="#weighted-descriptives" id="toc-weighted-descriptives" class="nav-link" data-scroll-target="#weighted-descriptives">Weighted descriptives</a>
   <ul>
   <li><a href="#benefit-types" id="toc-benefit-types" class="nav-link" data-scroll-target="#benefit-types">Benefit types</a></li>
@@ -2220,7 +2221,7 @@ vertical-align: -.125em;
   <li><a href="#trends-by-groups-unweighted" id="toc-trends-by-groups-unweighted" class="nav-link" data-scroll-target="#trends-by-groups-unweighted">Trends by groups (unweighted)</a></li>
   <li><a href="#moderation-effects" id="toc-moderation-effects" class="nav-link" data-scroll-target="#moderation-effects">Moderation effects</a>
   <ul>
-  <li><a href="#dyadic-adjustment-scale-relationship-satisfaction-subscale" id="toc-dyadic-adjustment-scale-relationship-satisfaction-subscale" class="nav-link" data-scroll-target="#dyadic-adjustment-scale-relationship-satisfaction-subscale">Dyadic Adjustment Scale: Relationship satisfaction subscale</a></li>
+  <li><a href="#dyadic-adjustment-scale-relationship-satisfaction" id="toc-dyadic-adjustment-scale-relationship-satisfaction" class="nav-link" data-scroll-target="#dyadic-adjustment-scale-relationship-satisfaction">Dyadic Adjustment Scale: Relationship satisfaction</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -2364,8 +2365,19 @@ vertical-align: -.125em;
 <span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
+<section id="sample-restriction" class="level2">
+<h2 class="anchored" data-anchor-id="sample-restriction">Sample restriction</h2>
+<p><strong>Analyses are restricted to working-age respondents (20–60) who are in a cohabiting or marital relationship</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>uk <span class="ot">&lt;-</span> uk <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    age <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">&amp;</span> age <span class="sc">&lt;=</span> <span class="dv">60</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(relstat2)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 <section id="unweighted-descriptives" class="level2">
-<h2 class="anchored" data-anchor-id="unweighted-descriptives">unweighted descriptives</h2>
+<h2 class="anchored" data-anchor-id="unweighted-descriptives">Unweighted descriptives</h2>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>  benefit_MT      n Percent
@@ -2563,8 +2575,8 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<section id="dyadic-adjustment-scale-relationship-satisfaction-subscale" class="level4">
-<h4 class="anchored" data-anchor-id="dyadic-adjustment-scale-relationship-satisfaction-subscale">Dyadic Adjustment Scale: Relationship satisfaction subscale</h4>
+<section id="dyadic-adjustment-scale-relationship-satisfaction" class="level4">
+<h4 class="anchored" data-anchor-id="dyadic-adjustment-scale-relationship-satisfaction">Dyadic Adjustment Scale: Relationship satisfaction</h4>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
