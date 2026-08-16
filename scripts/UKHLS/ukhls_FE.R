@@ -33,7 +33,8 @@ M1b <- plm(
 ## M1c ----
 M1c <- plm(
   rel_happy ~ log_hhnetinc_oecd +
-    relstat2 + lfstat + nchild + mcs,
+    relstat2 + relevel(lfstat, ref = "Retired") + nchild + mcs + pcs + 
+    factor(wave),
   data = uk,
   index = "pidp",
   model = "within"
@@ -41,13 +42,41 @@ M1c <- plm(
 
 ## M1d ----
 M1d <- plm(
-  rel_happy ~ log_hhnetinc_oecd +
-    relstat2 + lfstat + nchild + mcs +
+  rel_happy ~ log_hhgrsinc_oecd +
+    relstat2 + relevel(lfstat, ref = "Retired") + nchild + mcs + pcs + 
     factor(wave),
   data = uk,
   index = "pidp",
   model = "within"
 )
+
+
+
+stargazer(list(M1a, M1b, M1c, M1d),
+          
+          column.labels=c("Equivalence household net income (log) (no controls)", "Equivalence household gross income (log) (no controls)",
+                          "Equivalence household net income (log) (controls)", "Equivalence household gross income (log) (controls)"
+                          ),
+          
+          covariate.labels=c("Equivalence household net income (log)",
+                             "Equivalence household gross income (log)",
+                             "Married (Ref: Cohabiting)",
+                             "Full-time employed (Ref. Retired)",
+                             "Part-time employed",
+                             "Self-employed",
+                             "Unemployed",
+                             "Inactive",
+                             "Number of children (0-10)",
+                             "Mental health (0-100)",
+                             "Physical health (0-100)"
+          ),
+          
+          align=TRUE,
+          type = "text")
+
+
+
+
 
 
 
@@ -74,7 +103,7 @@ M2b <- plm(
 M2c <- plm(
   rel_happy ~ benefit_MT +
     log_hhnetinc_oecd + 
-    relstat2 + relevel(lfstat, ref = "Retired") + nchild + mcs,
+    relstat2 + relevel(lfstat, ref = "Retired") + nchild,
   data = uk,
   index = "pidp",
   model = "within"
@@ -84,7 +113,7 @@ M2c <- plm(
 M2d <- plm(
   rel_happy ~ benefit_MT +
     log_hhnetinc_oecd + 
-    relstat2 + relevel(lfstat, ref = "Retired") + nchild + mcs + 
+    relstat2 + relevel(lfstat, ref = "Retired") + nchild + 
     factor(wave),
   data = uk,
   index = "pidp",
@@ -94,9 +123,9 @@ M2d <- plm(
 ## M2e ----
 M2e <- plm(
   rel_happy ~ benefit_MT +
-    log_hhnetinc_oecd + 
-    relstat2 + relevel(lfstat, ref = "Retired") + nchild + mcs + 
-    age,
+    log_hhgrsinc_oecd + 
+    relstat2 + relevel(lfstat, ref = "Retired") + nchild + 
+    factor(wave),
   data = uk,
   index = "pidp",
   model = "within"
@@ -106,31 +135,20 @@ stargazer(list(M2a, M2b, M2c, M2d, M2e),
           
           column.labels=c("M2a", "M2b", "M2c", "M2d", "M2e"),
           
-          covariate.labels=c("Means-tested benefit (0/1)",
-                            "Log Net Equivalized Household Income (OECD)",
+          covariate.labels=c("Means-tested benefit receipt (0/1)",
+                            "Equivalence household net income (log)",
+                            "Equivalence household gross income (log)",
                             "Married (Ref: Cohabiting)",
                             "Full-time employed (Ref. Retired)",
                             "Part-time employed",
                             "Self-employed",
                             "Unemployed",
                             "Inactive",
-                            "Number of children (0-10)",
-                            "Mental health (0-100)"
+                            "Number of children (0-10)"
                              ),
           
           align=TRUE,
           type = "text")
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -145,19 +163,18 @@ uk_men <- uk %>%
 M4a <- plm(
   rel_happy ~ benefit_MT +
     log_hhnetinc_oecd + 
-    relstat2 + lfstat + nchild + mcs +
-    wave,
+    factor(wave),
   data = uk_men,
   index = "pidp",
   model = "within"
 )
 
-## M4b ----
+## M4b  (all controls) ----
 M4b <- plm(
   rel_happy ~ benefit_MT +
     log_hhnetinc_oecd + 
-    relstat2 + lfstat + nchild + mcs +
-    wave,
+    relstat2 + lfstat + nchild + 
+    factor(wave),
   data = uk_men,
   index = "pidp",
   model = "within"
@@ -173,19 +190,18 @@ uk_women <- uk %>%
 M5a <- plm(
   rel_happy ~ benefit_MT +
     log_hhnetinc_oecd + 
-    relstat2 + lfstat + nchild + mcs +
-    wave,
+    factor(wave),
   data = uk_women,
   index = "pidp",
   model = "within"
 )
 
-## M5b ----
+## M5b (all controls) ----
 M5b <- plm(
   rel_happy ~ benefit_MT +
     log_hhnetinc_oecd + 
-    relstat2 + lfstat + nchild + mcs +
-    wave,
+    relstat2 + lfstat + nchild + 
+    factor(wave),
   data = uk_women,
   index = "pidp",
   model = "within"
@@ -199,20 +215,7 @@ M5b <- plm(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# In-Work sample ----
+# In/Out-Work sample ----
 uk_emp <- uk %>%
   filter(
     lfstat %in% c(
@@ -237,19 +240,19 @@ uk_unemp <- uk %>%
 ## M100 ----
 M100 <- plm(
   rel_happy ~ benefit_MT +
-    log_hhnetinc_oecd + 
-    relstat2 + lfstat + nchild + mcs,
+    log_hhgrsinc_oecd + 
+    relstat2 + lfstat + nchild + factor(wave),
   data = uk_emp,
   index = "pidp",
   model = "within"
 )
 
 
-## M100 ----
+## M200 ----
 M200 <- plm(
   rel_happy ~ benefit_MT +
-    log_hhnetinc_oecd + 
-    relstat2 + lfstat + nchild + mcs,
+    log_hhgrsinc_oecd + 
+    relstat2 + lfstat + nchild + factor(wave),
   data = uk_unemp,
   index = "pidp",
   model = "within"

@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 05.08.2026                                                                 #
+# Last Update: 17.08.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -61,8 +61,8 @@ options(max.print=10000)
 
 
 ## Load ----
-#uk <- readRDS("data/UKHLS_long.rds")
-uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
+uk <- readRDS("data/UKHLS_long.rds")
+#uk <- readRDS("~/PAIRS/data/UKHLS_long.rds")
 
 ## Rename ----
 new_var_names <- c(wave                  = "wavename",              # Wave
@@ -140,15 +140,15 @@ uk <- rename(uk,
             all_of(new_var_names))
 
 ## Weight ----
-o_indresp <- read_dta("PAIRS/data/UKHLS/o_indresp.dta",  encoding = "latin1")
-weight_w15 <- o_indresp %>%
-  select(pidp, o_indinus_lw)
-uk <- uk %>%
-  select(-any_of("o_indinus_lw")) %>%
-  left_join(
-    weight_w15,
-    by = "pidp"
-  )
+# o_indresp <- read_dta("PAIRS/data/UKHLS/o_indresp.dta",  encoding = "latin1")
+# weight_w15 <- o_indresp %>%
+#   select(pidp, o_indinus_lw)
+# uk <- uk %>%
+#   select(-any_of("o_indinus_lw")) %>%
+#   left_join(
+#     weight_w15,
+#     by = "pidp"
+#   )
 
 
 ## Factor transf ----
@@ -243,22 +243,22 @@ uk <- uk %>%
 
 
 ## OECD scale ----
-oecd_wave4 <- read_dta(
-  file.path("~/PAIRS/data/UKHLS/d_hhresp.dta")
-) %>%
-  transmute(
-    hidp = d_hidp,
-    oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
-  ) # correct for merging error in wave 4
-
-
 # oecd_wave4 <- read_dta(
-#   file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
+#   file.path("~/PAIRS/data/UKHLS/d_hhresp.dta")
 # ) %>%
 #   transmute(
 #     hidp = d_hidp,
 #     oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
 #   ) # correct for merging error in wave 4
+
+
+oecd_wave4 <- read_dta(
+  file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
+) %>%
+  transmute(
+    hidp = d_hidp,
+    oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
+  ) # correct for merging error in wave 4
 
 
 
@@ -321,8 +321,8 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     relstat2 = case_when(
-      livewith == 1 ~ 2,
-      marstat == 2 ~ 1,
+      mastat_dv == 10 ~ 1,
+      mastat_dv == 2 ~ 2,
       TRUE ~ NA_real_
     ),
     relstat2 = factor(
@@ -331,7 +331,21 @@ uk <- uk %>%
       labels = c("Cohabiting", "Married")
     )
   )
-#table(uk$livesp) # Live with spouse
+
+## Old coding: 
+# uk <- uk %>%
+#   mutate(
+#     relstat2_a = case_when(
+#       livewith == 1 ~ 2,
+#       marstat == 2 ~ 1,
+#       TRUE ~ NA_real_
+#     ),
+#     relstat2_a = factor(
+#       relstat2_a,
+#       levels = c(1, 2),
+#       labels = c("Cohabiting", "Married")
+#     )
+#   )
 
 ## Rel Happy ----
 uk <- uk %>%
@@ -341,6 +355,17 @@ uk <- uk %>%
       TRUE ~ rel_happy
     )
   )
+
+### DAS ----
+uk <- uk %>%
+  mutate(
+    DAS_rel_sat = case_when(
+      DAS_rel_sat < 0 ~ NA_real_,
+      TRUE ~ DAS_rel_sat
+    )
+  )
+
+
 
 
 ## NChild ----
@@ -377,21 +402,21 @@ uk <- uk %>%
     )
 
 ### Partner ----
-uk <- uk %>%
-  mutate(
-    p_lfstat = case_when(
-      ncrr6 == 2                     ~ "Full/Part-time employed",
-      ncrr6 == 1                     ~ "Self-employed",
-      ncrr6 == 3                     ~ "Unemployed",
-      ncrr6 %in% c(4,8)              ~ "Retired",
-      ncrr6 %in%c (5, 6, 10, 14, 15) ~ "Inactive",
-      TRUE                ~ NA_character_
-      ),
-    p_lfstat = factor(p_lfstat,
-                      levels = c("Full/Part-time employed",
-                                 "Self-employed",
-                                 "Unemployed", "Retired", "Inactive"))
-    )
+# uk <- uk %>%
+#   mutate(
+#     p_lfstat = case_when(
+#       ncrr6 == 2                     ~ "Full/Part-time employed",
+#       ncrr6 == 1                     ~ "Self-employed",
+#       ncrr6 == 3                     ~ "Unemployed",
+#       ncrr6 %in% c(4,8)              ~ "Retired",
+#       ncrr6 %in%c (5, 6, 10, 14, 15) ~ "Inactive",
+#       TRUE                ~ NA_character_
+#       ),
+#     p_lfstat = factor(p_lfstat,
+#                       levels = c("Full/Part-time employed",
+#                                  "Self-employed",
+#                                  "Unemployed", "Retired", "Inactive"))
+#     )
 
 ### Paid work ----
 uk <- uk %>%
@@ -446,98 +471,201 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     benefit_MT = case_when(
-      if_any(
-        c(
-          # JSA
-          inc_benefit_JSA,
-          unemp_benefit_JSA,
-          inct_benefit_JSA,
-          bt_benefit_unemp,
-          
-          # Income Support
-          bt_benefit_IS,
-          inc_benefit_IS,
-          
-          # Housing Benefit
-          oth_benefit_hous,
-          inct_benefit_hous,
-          hou_benefit_HB,
-          
-          # CTC
-          chi_benefit_CTC,
-          tax_benefit_CTS,
-          
-          # Working Tax Credit
-          bt_benefit_WTC,
-          oth_benefit_WTC,
-          tax_benefit_WTC,
-          inct_benefit_WTC,
-          oth_benefit_IWC_lp,
-          
-          # Universal Credit
-          unemp_benefit_UC,
-          inct_benefit_UC,
-          bt_benefit_UC,
-          inc_benefit_UC,
-          dis_benefit_UC,
-          hou_benefit_UC,
-          tax_benefit_UC
-        ),
-        ~ .x == 1
-      ) ~ 1,
       
-      if_any(
-        c(
-          inc_benefit_JSA,
-          unemp_benefit_JSA,
-          inct_benefit_JSA,
-          bt_benefit_unemp,
-          bt_benefit_IS,
-          inc_benefit_IS,
-          oth_benefit_hous,
-          inct_benefit_hous,
-          hou_benefit_HB,
-          chi_benefit_CTC,
-          tax_benefit_CTS,
-          bt_benefit_WTC,
-          oth_benefit_WTC,
-          tax_benefit_WTC,
-          inct_benefit_WTC,
-          oth_benefit_IWC_lp,
-          unemp_benefit_UC,
-          inct_benefit_UC,
-          bt_benefit_UC,
-          inc_benefit_UC,
-          dis_benefit_UC,
-          hou_benefit_UC,
-          tax_benefit_UC
-        ),
-        ~ .x == 0
-      ) ~ 0,
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+      # WAVES 1-5: RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 1:5 &
+        (
+          # JSA/unemp. benefits
+          bt_benefit_unemp == 1 |
+            unemp_benefit_JSA == 1 |
+            inct_benefit_JSA == 1 |
+            
+            # Income Support
+            bt_benefit_IS == 1 |
+            
+            # Housing Benefit
+            hou_benefit_HB == 1 |
+            inct_benefit_hous == 1 |
+            
+            # Working Tax Credit
+            bt_benefit_WTC == 1 |
+            tax_benefit_WTC == 1 |
+            inct_benefit_WTC == 1 |
+            
+            # Council Tax Benefit 
+            tax_benefit_CTS == 1 |
+            
+            # Universal Credit:
+            # only use early UC-specific routes from Wave 3 onward
+            (wave %in% 3:5 &
+               (
+                 unemp_benefit_UC == 1 |
+                   bt_benefit_UC == 1 |
+                   hou_benefit_UC == 1 |
+                   tax_benefit_UC == 1 |
+                   dis_benefit_UC == 1 |
+                   inct_benefit_UC == 1
+               ))
+        ) ~ 1,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+      # WAVES 6-15: RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 6:15 &
+        (
+          # JSA
+          inc_benefit_JSA == 1 |
+            inct_benefit_JSA == 1 |
+            
+            # Income Support
+            inc_benefit_IS == 1 |
+            
+            # Housing Benefit
+            oth_benefit_hous == 1 |
+            inct_benefit_hous == 1 |
+            
+            # Working Tax Credit
+            oth_benefit_WTC == 1 |
+            inct_benefit_WTC == 1 |
+            oth_benefit_IWC_lp == 1 |
+            
+            # Universal Credit
+            inc_benefit_UC == 1 |
+            inct_benefit_UC == 1
+        ) ~ 1,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      # WAVES 1-5: NON-RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 1:5 &
+        (
+          bt_benefit_unemp == 0 &
+            bt_benefit_IS == 0 &
+            bt_benefit_WTC == 0
+        ) ~ 0,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      # WAVES 6-15: NON-RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 6:15 &
+        (
+          inc_benefit_JSA == 0 &
+            inc_benefit_IS == 0 &
+            oth_benefit_hous == 0 &
+            oth_benefit_WTC == 0 &
+            inc_benefit_UC == 0
+        ) ~ 0,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      # OTHERWISE: NA
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
       
       TRUE ~ NA_real_
     )
   )
 
 
+# old coding
+# uk <- uk %>%
+#   mutate(
+#     benefit_MT = case_when(
+#       if_any(
+#         c(
+#           # JSA
+#           inc_benefit_JSA,
+#           unemp_benefit_JSA,
+#           inct_benefit_JSA,
+#           bt_benefit_unemp,
+#           
+#           # Income Support
+#           bt_benefit_IS,
+#           inc_benefit_IS,
+#           
+#           # Housing Benefit
+#           oth_benefit_hous,
+#           inct_benefit_hous,
+#           hou_benefit_HB,
+#           
+#           # CTC
+#           chi_benefit_CTC,
+#           tax_benefit_CTS,
+#           
+#           # Working Tax Credit
+#           bt_benefit_WTC,
+#           oth_benefit_WTC,
+#           tax_benefit_WTC,
+#           inct_benefit_WTC,
+#           oth_benefit_IWC_lp,
+#           
+#           # Universal Credit
+#           unemp_benefit_UC,
+#           inct_benefit_UC,
+#           bt_benefit_UC,
+#           inc_benefit_UC,
+#           dis_benefit_UC,
+#           hou_benefit_UC,
+#           tax_benefit_UC
+#         ),
+#         ~ .x == 1
+#       ) ~ 1,
+#       
+#       if_any(
+#         c(
+#           inc_benefit_JSA,
+#           unemp_benefit_JSA,
+#           inct_benefit_JSA,
+#           bt_benefit_unemp,
+#           bt_benefit_IS,
+#           inc_benefit_IS,
+#           oth_benefit_hous,
+#           inct_benefit_hous,
+#           hou_benefit_HB,
+#           chi_benefit_CTC,
+#           tax_benefit_CTS,
+#           bt_benefit_WTC,
+#           oth_benefit_WTC,
+#           tax_benefit_WTC,
+#           inct_benefit_WTC,
+#           oth_benefit_IWC_lp,
+#           unemp_benefit_UC,
+#           inct_benefit_UC,
+#           bt_benefit_UC,
+#           inc_benefit_UC,
+#           dis_benefit_UC,
+#           hou_benefit_UC,
+#           tax_benefit_UC
+#         ),
+#         ~ .x == 0
+#       ) ~ 0,
+#       
+#       TRUE ~ NA_real_
+#     )
+#   )
 
-# Sample reduction AGE ----
+
+
+# Sample reduction AGE & RELSAT ----
 uk <- uk %>%
-  filter(age >= 15) # Drop samples younger than 15
+  filter(
+    age >= 20 & age <= 60,
+    !is.na(relstat2)
+  )
 
 
 ## Missings ----
 # missings <- c(
 #   "rel_happy",
-#   "benefit_OOW", "benefit_IWB",
-#   "log_hhincoecd",
-# 
-#   "relstat2",
-#   "nchild_dv",
-#   "lfstat",
-# 
-#   "health",
-#   "age", "wave "
+#   "benefit_MT
 #   )
 # 
 ## Remove NAs ----
@@ -547,6 +675,6 @@ uk <- uk %>%
 
 
 # Save ----
-rm(oecd_wave4, new_var_names, o_indresp, weight_w15)
-#saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
-saveRDS(uk, "~/PAIRS/data/uk.rds")
+rm(oecd_wave4, new_var_names)
+saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+#saveRDS(uk, "~/PAIRS/data/uk.rds")

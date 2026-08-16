@@ -75,53 +75,531 @@ uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
 #uk <- readRDS("~/PAIRS/data/uk.rds")
 ```
 
-## Count
+## Means-tested benefit coding
 
-### Frequency Means-tested Benefit
+```{r, eval=FALSE, echo=TRUE}
+uk <- uk %>%
+  mutate(
+    benefit_MT = case_when(
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+      # WAVES 1-5: RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 1:5 &
+        (
+          # JSA/unemp. benefits
+          bt_benefit_unemp == 1 |
+            unemp_benefit_JSA == 1 |
+            inct_benefit_JSA == 1 |
+            
+            # Income Support
+            bt_benefit_IS == 1 |
+            
+            # Housing Benefit
+            hou_benefit_HB == 1 |
+            inct_benefit_hous == 1 |
+            
+            # Working Tax Credit
+            bt_benefit_WTC == 1 |
+            tax_benefit_WTC == 1 |
+            inct_benefit_WTC == 1 |
+            
+            # Council Tax Benefit 
+            tax_benefit_CTS == 1 |
+            
+            # Universal Credit
+            (wave %in% 3:5 &
+               (
+                 unemp_benefit_UC == 1 |
+                   bt_benefit_UC == 1 |
+                   hou_benefit_UC == 1 |
+                   tax_benefit_UC == 1 |
+                   dis_benefit_UC == 1 |
+                   inct_benefit_UC == 1
+               ))
+        ) ~ 1,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+      # WAVES 6-15: RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 6:15 &
+        (
+          # JSA
+          inc_benefit_JSA == 1 |
+            inct_benefit_JSA == 1 |
+            
+            # Income Support
+            inc_benefit_IS == 1 |
+            
+            # Housing Benefit
+            oth_benefit_hous == 1 |
+            inct_benefit_hous == 1 |
+            
+            # Working Tax Credit
+            oth_benefit_WTC == 1 |
+            inct_benefit_WTC == 1 |
+            oth_benefit_IWC_lp == 1 |
+            
+            # Universal Credit
+            inc_benefit_UC == 1 |
+            inct_benefit_UC == 1
+        ) ~ 1,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      # WAVES 1-5: NON-RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 1:5 &
+        (
+          bt_benefit_unemp == 0 &
+            bt_benefit_IS == 0 &
+            bt_benefit_WTC == 0
+        ) ~ 0,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      # WAVES 6-15: NON-RECEIPT
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      wave %in% 6:15 &
+        (
+          inc_benefit_JSA == 0 &
+            inc_benefit_IS == 0 &
+            oth_benefit_hous == 0 &
+            oth_benefit_WTC == 0 &
+            inc_benefit_UC == 0
+        ) ~ 0,
+      
+      
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      # OTHERWISE: NA
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      
+      TRUE ~ NA_real_
+    )
+  )
 
-```{r, echo=FALSE}
+```
+
+## unweighted descriptives
+
+```{r, echo=FALSE, error=FALSE}
 uk %>%
   count(benefit_MT) %>%
   mutate(Percent = 100 * n / sum(n)) %>%
   round(2)
 ```
 
-------------------------------------------------------------------------
 
-### Means-tested benefit receipt by wave
 
-```{r, echo=FALSE}
-uk %>%
-  count(wave, benefit_MT) %>%
-  group_by(wave) %>%
-  mutate(percent = 100 * n / sum(n)) %>%
-  ungroup() %>%
+```{r, echo=FALSE, error=FALSE}
+benefit_plot_data <- uk %>%
+  select(wave, benefit_MT) %>%
   mutate(
-    benefit_MT = factor(
-      benefit_MT,
-      levels = c(0, 1),
-      labels = c("No", "Yes")
+    benefit_status = case_when(
+      benefit_MT == 0 ~ "No",
+      benefit_MT == 1 ~ "Yes",
+      is.na(benefit_MT) ~ "Missing"
+    ),
+    benefit_status = factor(
+      benefit_status,
+      levels = c("No", "Yes", "Missing")
     )
   ) %>%
-  gt() %>%
-  fmt_number(columns = percent, decimals = 1) %>%
-  cols_label(
-    wave = "Wave",
-    benefit_MT = "Means-tested benefit",
-    n = "N",
-    percent = "%"
-  ) %>%
-  tab_header(
-    title = "Means-tested Benefit Receipt by Wave"
+  count(wave, benefit_status)
+
+
+
+ggplot(
+  benefit_plot_data,
+  aes(
+    x = wave,
+    y = n,
+    fill = benefit_status
+  )
+) +
+  geom_col() +
+  scale_x_continuous(breaks = 1:15) +
+  theme_tufte(base_size = 18) +
+  labs(
+    x = "Wave",
+    y = "Frequency",
+    fill = "Means-tested benefit receipt"
+  ) +
+  scale_fill_viridis_d(direction = -1)
+
+```
+
+## Weighted descriptives
+
+### Benefit types
+
+
+```{r, include=FALSE}
+weights_cs <- read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/weights_cs.dta")
+#weights_cs <- read_dta("~/PAIRS/data/weights_cs.dta")
+
+## Merge ----
+uk <- uk %>%
+  left_join(
+    weights_cs,
+    by = c("pidp", "wave")
+  )
+
+## Apply ----
+### Missings ----
+uk_cs <- uk %>%
+  filter(
+    !is.na(benefit_MT),
+    weight_cs > 0,
+    !is.na(psu),
+    !is.na(strata)
+  )
+
+
+### Survey ----
+options(survey.lonely.psu = "adjust")
+uk_cs_w <- svydesign(
+  ids = ~psu,
+  strata = ~strata,
+  weights = ~weight_cs,
+  data = uk_cs,
+  nest = TRUE
+)
+
+benefit_time_series <- uk_cs %>%
+  group_by(wave) %>%
+  summarise(
+    n_unweighted = sum(benefit_MT == 1),
+    n_weighted = sum(weight_cs * (benefit_MT == 1)),
+    .groups = "drop"
+  )
+
+benefit_time_series
+
+
+
+benefit_time_series <- uk_cs %>%
+  group_by(wave) %>%
+  summarise(
+    n_unweighted = sum(benefit_MT == 1),
+    n_weighted = sum(weight_cs * (benefit_MT == 1)),
+    weighted_percent = 100 * weighted.mean(
+      benefit_MT,
+      w = weight_cs
+    ),
+    .groups = "drop"
+  )
+benefit_time_series
+```
+
+
+```{r, include=FALSE}
+# Check ----
+uk <- uk %>%
+  mutate(
+    # JSA
+    check_JSA = case_when(
+      wave %in% 1:5 &
+        (
+          bt_benefit_unemp == 1 |
+            inct_benefit_JSA == 1 |
+            unemp_benefit_JSA == 1
+        ) ~ 1,
+      
+      wave %in% 6:15 &
+        (
+          inc_benefit_JSA == 1 |
+            inct_benefit_JSA == 1
+        ) ~ 1,
+      
+      TRUE ~ 0
+    ),
+    
+    # Income Support
+    check_IS = case_when(
+      wave %in% 1:5 &
+        bt_benefit_IS == 1 ~ 1,
+      
+      wave %in% 6:15 &
+        inc_benefit_IS == 1 ~ 1,
+      
+      TRUE ~ 0
+    ),
+    
+    # Housing Benefit
+    check_HB = case_when(
+      wave %in% 1:5 &
+        (
+          hou_benefit_HB == 1 |
+            inct_benefit_hous == 1
+        ) ~ 1,
+      
+      wave %in% 6:15 &
+        (
+          oth_benefit_hous == 1 |
+            inct_benefit_hous == 1
+        ) ~ 1,
+      
+      TRUE ~ 0
+    ),
+    
+    # Working Tax Credit
+    check_WTC = case_when(
+      wave %in% 1:5 &
+        (
+          bt_benefit_WTC == 1 |
+            tax_benefit_WTC == 1 |
+            inct_benefit_WTC == 1
+        ) ~ 1,
+      
+      wave %in% 6:15 &
+        (
+          oth_benefit_WTC == 1 |
+            inct_benefit_WTC == 1
+        ) ~ 1,
+      
+      TRUE ~ 0
+    ),
+    
+    # Universal Credit
+    check_UC = case_when(
+      inc_benefit_UC == 1 |
+        inct_benefit_UC == 1 |
+        unemp_benefit_UC == 1 |
+        bt_benefit_UC == 1 |
+        hou_benefit_UC == 1 |
+        tax_benefit_UC == 1 |
+        dis_benefit_UC == 1 ~ 1,
+      
+      TRUE ~ 0
+    )
   )
 ```
 
 
-```{r}
-uk %>%
-  count(wave, benefit_MT) %>%
+```{r, echo=FALSE}
+benefit_components <- uk %>%
+  filter(!is.na(benefit_MT)) %>%
   group_by(wave) %>%
-  mutate(percent = 100 * n / sum(n)) %>%
+  summarise(
+    N_observed = n(),
+    
+    JSA = round(
+      100 * mean(check_JSA == 1),
+      1
+    ),
+    
+    Income_Support = round(
+      100 * mean(check_IS == 1),
+      1
+    ),
+    
+    Housing_Benefit = round(
+      100 * mean(check_HB == 1),
+      1
+    ),
+    
+    WTC = round(
+      100 * mean(check_WTC == 1),
+      1
+    ),
+    
+    UC = round(
+      100 * mean(check_UC == 1),
+      1
+    ),
+    
+    Any_MT = round(
+      100 * mean(benefit_MT == 1),
+      1
+    ),
+    
+    .groups = "drop"
+  )
+
+benefit_components %>%
+  print(n = 15)
+
+```
+
+```{r, include=FALSE}
+benefit_time_series_components <- uk %>%
+  filter(
+    weight_cs > 0,
+    !is.na(psu),
+    !is.na(strata)
+  ) %>%
+  group_by(wave) %>%
+  summarise(
+    JSA_unweighted = sum(check_JSA == 1, na.rm = TRUE),
+    JSA_weighted = sum(weight_cs * (check_JSA == 1), na.rm = TRUE),
+
+    IS_unweighted = sum(check_IS == 1, na.rm = TRUE),
+    IS_weighted = sum(weight_cs * (check_IS == 1), na.rm = TRUE),
+
+    HB_unweighted = sum(check_HB == 1, na.rm = TRUE),
+    HB_weighted = sum(weight_cs * (check_HB == 1), na.rm = TRUE),
+
+    WTC_unweighted = sum(check_WTC == 1, na.rm = TRUE),
+    WTC_weighted = sum(weight_cs * (check_WTC == 1), na.rm = TRUE),
+
+    UC_unweighted = sum(check_UC == 1, na.rm = TRUE),
+    UC_weighted = sum(weight_cs * (check_UC == 1), na.rm = TRUE),
+
+    .groups = "drop"
+  )
+
+benefit_time_series_components
+
+benefit_plot_data <- benefit_time_series_components %>%
+  select(
+    wave,
+    JSA_weighted,
+    IS_weighted,
+    HB_weighted,
+    WTC_weighted,
+    UC_weighted
+  ) %>%
+  pivot_longer(
+    cols = -wave,
+    names_to = "benefit",
+    values_to = "n_weighted"
+  ) %>%
+  mutate(
+    benefit = recode(
+      benefit,
+      JSA_weighted = "Jobseeker's Allowance",
+      IS_weighted = "Income Support",
+      HB_weighted = "Housing Benefit",
+      WTC_weighted = "Working Tax Credit",
+      UC_weighted = "Universal Credit"
+    )
+  )
+```
+
+
+
+```{r, echo=FALSE}
+benefit_plot_data %>%
+  ggplot(
+    aes(
+      x = wave,
+      y = n_weighted,
+      color = benefit,
+      group = benefit
+    )
+  ) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_x_continuous(breaks = 1:15) +
+  theme_bw() +
+  labs(
+    x = "Wave",
+    y = "Weighted number of benefit recipients",
+    color = "Benefit",
+    title = "Weighted Benefit Receipt by Wave"
+  )
+```
+
+
+
+
+
+
+```{r, echo=FALSE}
+benefit_time_series %>%
+  ggplot(aes(x = wave, y = n_weighted)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_x_continuous(breaks = 1:15) +
+  theme_bw() +
+  labs(
+    x = "Wave",
+    y = "Weighted number of means-tested benefit receipt",
+    title = "Weighted Means-tested Benefit Receipt by Wave"
+  )
+```
+
+
+
+
+```{r, echo=FALSE}
+tab4_w <- uk %>%
+  filter(
+    !is.na(benefit_MT),
+    weight_cs > 0
+  ) %>%
+  group_by(wave, benefit_MT) %>%
+  summarise(
+    n_unweighted = n(),
+    n_weighted = sum(weight_cs),
+    .groups = "drop"
+  ) %>%
+  group_by(wave) %>%
+  mutate(
+    prop = n_weighted / sum(n_weighted)
+  ) %>%
+  ungroup()
+
+tab4_w %>%
+  print(n = 100)
+```
+
+
+```{r, echo=FALSE}
+tab4_w %>%
+  ggplot(
+    aes(
+      x = wave,
+      y = 100 * prop,
+      fill = factor(
+        benefit_MT,
+        levels = c(0, 1),
+        labels = c("No", "Yes")
+      )
+    )
+  ) +
+  geom_col(
+    position = "dodge"
+  ) +
+  scale_x_continuous(
+    breaks = 1:15
+  ) +
+  theme_bw() +
+  labs(
+    x = "Wave",
+    y = "Weighted percent %",
+    fill = "Means-tested benefit receipt"
+  )
+```
+
+
+
+
+
+### Means-tested benefit receipt by wave
+
+```{r, echo=FALSE, include=FALSE}
+benefit_wave_w <- uk %>%
+  filter(
+    !is.na(benefit_MT),
+    weight_cs > 0
+  ) %>%
+  group_by(wave, benefit_MT) %>%
+  summarise(
+    n_unweighted = n(),
+    n_weighted = sum(weight_cs),
+    .groups = "drop"
+  ) %>%
+  group_by(wave) %>%
+  mutate(
+    percent = 100 * n_weighted / sum(n_weighted)
+  ) %>%
   ungroup() %>%
   mutate(
     benefit_MT = factor(
@@ -129,8 +607,29 @@ uk %>%
       levels = c(0, 1),
       labels = c("No", "Yes")
     )
+  )
+
+benefit_wave_w %>%
+  gt() %>%
+  fmt_number(
+    columns = c(n_weighted, percent),
+    decimals = 1
   ) %>%
-  filter(!is.na(benefit_MT)) %>%
+  cols_label(
+    wave = "Wave",
+    benefit_MT = "Means-tested benefit",
+    n_unweighted = "Unweighted N",
+    n_weighted = "Weighted N",
+    percent = "Weighted %"
+  ) %>%
+  tab_header(
+    title = "Weighted Means-tested Benefit Receipt by Wave"
+  )
+```
+
+
+```{r, echo=FALSE}
+benefit_wave_w %>%
   ggplot(
     aes(
       x = wave,
@@ -141,45 +640,41 @@ uk %>%
   ) +
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
-  scale_x_continuous(breaks = 1:15) +
+  scale_x_continuous(
+    breaks = 1:15
+  ) +
   theme_bw() +
   labs(
     x = "Wave",
-    y = "Percent",
+    y = "Weighted percent %",
     color = "Means-tested benefit",
-    title = "Means-tested Benefit Receipt by Wave"
+    title = "Weighted Means-tested Benefit Receipt by Wave"
   )
 ```
-
-
-
-
-
 
 ------------------------------------------------------------------------
 
 ### Means-tested benefit receipt by wave and labor force status
 
 ```{r, echo=FALSE}
-uk %>%
-  count(wave, benefit_MT, lfstat) %>%
-  na.omit() %>%
-  group_by(wave, lfstat) %>%
-  mutate(percent = 100 * n / sum(n)) %>%
-  select(-n) %>%
-  print(n = 180)
-```
-
-
-```{r}
-uk %>%
-  count(wave, benefit_MT, lfstat) %>%
-  na.omit() %>%
+benefit_lfstat_w <- uk %>%
+  filter(
+    !is.na(benefit_MT),
+    !is.na(lfstat),
+    weight_cs > 0
+  ) %>%
+  group_by(wave, lfstat, benefit_MT) %>%
+  summarise(
+    n_weighted = sum(weight_cs),
+    .groups = "drop"
+  ) %>%
   group_by(wave, lfstat) %>%
   mutate(
-    percent = 100 * n / sum(n)
+    percent = 100 * n_weighted / sum(n_weighted)
   ) %>%
-  ungroup() %>%
+  ungroup()
+
+benefit_lfstat_w %>%
   filter(benefit_MT == 1) %>%
   ggplot(
     aes(
@@ -194,13 +689,15 @@ uk %>%
   theme_bw() +
   labs(
     x = "Wave",
-    y = "Means-tested benefit receipt (%)",
-    title = "Means-tested Benefit Receipt by Employment Status"
+    y = "Weighted means-tested benefit receipt (%)",
+    title = "Weighted Means-tested Benefit Receipt by Employment Status"
   )
 ```
 
-```{r}
-uk %>%
+
+
+```{r, echo=FALSE}
+benefit_employment_w <- uk %>%
   mutate(
     employment = case_when(
       lfstat %in% c(
@@ -208,17 +705,29 @@ uk %>%
         "Part-time",
         "Self-employed"
       ) ~ "Employed (Full, part, self)",
+      
       !is.na(lfstat) ~ "Not employed (Unemployed, Retired, Inactive)",
+      
       TRUE ~ NA_character_
     )
   ) %>%
-  count(wave, benefit_MT, employment) %>%
-  na.omit() %>%
+  filter(
+    !is.na(benefit_MT),
+    !is.na(employment),
+    weight_cs > 0
+  ) %>%
+  group_by(wave, employment, benefit_MT) %>%
+  summarise(
+    n_weighted = sum(weight_cs),
+    .groups = "drop"
+  ) %>%
   group_by(wave, employment) %>%
   mutate(
-    percent = 100 * n / sum(n)
+    percent = 100 * n_weighted / sum(n_weighted)
   ) %>%
-  ungroup() %>%
+  ungroup()
+
+benefit_employment_w %>%
   filter(benefit_MT == 1) %>%
   ggplot(
     aes(
@@ -233,35 +742,48 @@ uk %>%
   theme_bw() +
   labs(
     x = "Wave",
-    y = "Means-tested benefit receipt (%)",
-    title = "Means-tested Benefit Receipt by Employment Status"
+    y = "Weighted means-tested benefit receipt (%)",
+    title = "Weighted Means-tested Benefit Receipt by Employment Status"
   )
 ```
 
 
+
+
+
 ------------------------------------------------------------------------
 
-### Means-tested benefit receipt by wave and employment
+### Means-tested benefit receipt by wave and paid work
 
 ```{r, echo=FALSE}
-uk %>%
-  count(wave, benefit_MT, job) %>%
-  na.omit() %>%
-  group_by(wave, job) %>%
-  mutate(percent = 100 * n / sum(n)) %>%
-  select(-n) %>%
-  print(n = 60)
+# uk %>%
+#   count(wave, benefit_MT, job) %>%
+#   na.omit() %>%
+#   group_by(wave, job) %>%
+#   mutate(percent = 100 * n / sum(n)) %>%
+#   select(-n) %>%
+#   print(n = 60)
 ```
 
-```{r}
-uk %>%
-  count(wave, benefit_MT, job) %>%
-  na.omit() %>%
+```{r, echo=FALSE}
+benefit_job_w <- uk %>%
+  filter(
+    !is.na(benefit_MT),
+    !is.na(job),
+    weight_cs > 0
+  ) %>%
+  group_by(wave, job, benefit_MT) %>%
+  summarise(
+    n_weighted = sum(weight_cs),
+    .groups = "drop"
+  ) %>%
   group_by(wave, job) %>%
   mutate(
-    percent = 100 * n / sum(n)
+    percent = 100 * n_weighted / sum(n_weighted)
   ) %>%
-  ungroup() %>%
+  ungroup()
+
+benefit_job_w %>%
   filter(benefit_MT == 1) %>%
   ggplot(
     aes(
@@ -276,8 +798,8 @@ uk %>%
   theme_bw() +
   labs(
     x = "Wave",
-    y = "Means-tested benefit receipt (%)",
-    title = "Means-tested Benefit Receipt by Paid Work Status"
+    y = "Weighted means-tested benefit receipt (%)",
+    title = "Weighted Means-tested Benefit Receipt by Paid Work Status"
   )
 ```
 
@@ -286,447 +808,20 @@ uk %>%
 
 ------------------------------------------------------------------------
 
-## Grouped Summary Tables
 
-### Income types
 
-#### Houeshold Net Income
+### Trends by groups (unweighted)
 
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(N    = sum(!is.na(hhnetinc)),
-            Mean = mean(hhnetinc, na.rm = T),
-            Var  = var(hhnetinc, na.rm = T),
-            SD   = sd(hhnetinc, na.rm = T),
-            Min  = min(hhnetinc, na.rm = T),
-            Max  = max(hhnetinc, na.rm = T),
-            NAs  = sum(is.na(hhnetinc))
-            )
-```
-
-##### Correct high incomes?
-
-```{r, echo=FALSE}
-uk %>%
-  filter(hhnetinc > 100000) %>%
-  select(
-    hidp,
-    wave,
-    hhnetinc,
-    hhgrsinc
-  ) %>%
-  distinct() %>%
-  arrange(desc(hhnetinc))
-```
-
-#### Household Gross Income
-
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(N    = sum(!is.na(hhgrsinc)),
-            Mean = mean(hhgrsinc, na.rm = T),
-            Var  = var(hhgrsinc, na.rm = T),
-            SD   = sd(hhgrsinc, na.rm = T),
-            Min  = min(hhgrsinc, na.rm = T),
-            Max  = max(hhgrsinc, na.rm = T),
-            NAs  = sum(is.na(hhgrsinc))
-            )
-```
-
-#### Household Net Income OECD equivalence scale
-
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(N    = sum(!is.na(hhnetinc_oecd)),
-            Mean = mean(hhnetinc_oecd, na.rm = T),
-            Var  = var(hhnetinc_oecd, na.rm = T),
-            SD   = sd(hhnetinc_oecd, na.rm = T),
-            Min  = min(hhnetinc_oecd, na.rm = T),
-            Max  = max(hhnetinc_oecd, na.rm = T),
-            NAs  = sum(is.na(hhnetinc_oecd))
-            )
-```
-
-#### Household Gross Income OECD equivalence scale
-
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(N    = sum(!is.na(hhgrsinc_oecd)),
-            Mean = mean(hhgrsinc_oecd, na.rm = T),
-            Var  = var(hhgrsinc_oecd, na.rm = T),
-            SD   = sd(hhgrsinc_oecd, na.rm = T),
-            Min  = min(hhgrsinc_oecd, na.rm = T),
-            Max  = max(hhgrsinc_oecd, na.rm = T),
-            NAs  = sum(is.na(hhgrsinc_oecd))
-  )
-```
-
-#### Log Household Net Income OECD equivalence scale
-
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(N    = sum(!is.na(log_hhnetinc_oecd)),
-            Mean = mean(log_hhnetinc_oecd, na.rm = T),
-            Var  = var(log_hhnetinc_oecd, na.rm = T),
-            SD   = sd(log_hhnetinc_oecd, na.rm = T),
-            Min  = min(log_hhnetinc_oecd, na.rm = T),
-            Max  = max(log_hhnetinc_oecd, na.rm = T),
-            NAs  = sum(is.na(log_hhnetinc_oecd))
-            )
-```
-
-#### Log Household Gross Income OECD equivalence scale
-
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(N    = sum(!is.na(log_hhgrsinc_oecd)),
-            Mean = mean(log_hhgrsinc_oecd, na.rm = T),
-            Var  = var(log_hhgrsinc_oecd, na.rm = T),
-            SD   = sd(log_hhgrsinc_oecd, na.rm = T),
-            Min  = min(log_hhgrsinc_oecd, na.rm = T),
-            Max  = max(log_hhgrsinc_oecd, na.rm = T),
-            NAs  = sum(is.na(log_hhgrsinc_oecd))
-            )
-```
-
-------------------------------------------------------------------------
-
-##### Summary
-
-```{r, echo=FALSE}
-income_summary <- uk %>%
-  summarise(
-    across(
-      c(
-        hhnetinc,
-        hhgrsinc,
-        hhnetinc_oecd,
-        hhgrsinc_oecd,
-        log_hhnetinc_oecd,
-        log_hhgrsinc_oecd
-      ),
-      list(
-        N = ~sum(!is.na(.)),
-        Mean = ~mean(., na.rm = TRUE),
-        SD = ~sd(., na.rm = TRUE),
-        Min = ~min(., na.rm = TRUE),
-        P25 = ~quantile(., 0.25, na.rm = TRUE),
-        Median = ~median(., na.rm = TRUE),
-        P75 = ~quantile(., 0.75, na.rm = TRUE),
-        P95 = ~quantile(., 0.95, na.rm = TRUE),
-        P99 = ~quantile(., 0.99, na.rm = TRUE),
-        Max = ~max(., na.rm = TRUE)
-      ),
-      .names = "{.col}_{.fn}"
-    )
-  ) %>%
-  pivot_longer(
-    everything(),
-    names_to = c("Variable", ".value"),
-    names_sep = "_(?=[^_]+$)"
-  )
-income_summary
-```
-
-##### Summary by wave
-
-```{r, echo=FALSE}
-income_summary_wave <- uk %>%
-  group_by(wave) %>%
-  summarise(
-    across(
-      c(
-        hhnetinc,
-        hhgrsinc,
-        hhnetinc_oecd,
-        hhgrsinc_oecd,
-        log_hhnetinc_oecd,
-        log_hhgrsinc_oecd
-      ),
-      list(
-        N = ~sum(!is.na(.x)),
-        Mean = ~mean(.x, na.rm = TRUE),
-        SD = ~sd(.x, na.rm = TRUE),
-        Min = ~min(.x, na.rm = TRUE),
-        P25 = ~quantile(.x, 0.25, na.rm = TRUE),
-        Median = ~median(.x, na.rm = TRUE),
-        P75 = ~quantile(.x, 0.75, na.rm = TRUE),
-        P95 = ~quantile(.x, 0.95, na.rm = TRUE),
-        P99 = ~quantile(.x, 0.99, na.rm = TRUE),
-        Max = ~max(.x, na.rm = TRUE)
-      ),
-      .names = "{.col}_{.fn}"
-    ),
-    .groups = "drop"
-  ) %>%
-  pivot_longer(
-    cols = -wave,
-    names_to = c("variable", ".value"),
-    names_pattern = "^(.*)_(N|Mean|SD|Min|P25|Median|P75|P95|P99|Max)$"
-  ) %>%
-  arrange(wave, variable)
-
-income_summary_wave %>%
-  print (n = 91)
-```
-
-------------------------------------------------------------------------
-
-## Main vars
-
-```{r, echo=FALSE}
-uk %>%
-  group_by(wave) %>%
-  summarise(Mean_HH_Net_Log_Income     = mean(log_hhnetinc_oecd, na.rm = T),
-            Mean_Benefit               = mean(benefit_MT, na.rm = T),
-            Mean_Rel_Happy             = mean(rel_happy, na.rm = T),
-            Mean_NChild                = mean(nchild, na.rm = T),
-            Mean_MCS                   = mean(mcs, na.rm = T),
-            Mean_PCS                   = mean(pcs, na.rm = T)
-  )
-
-```
-
-### By LFS
+**Wave comparison of mean relationship satisfaction by means-tested benefit receipt.**
 
 ```{r, echo=FALSE, error=FALSE}
-### By LFS ----
-uk %>%
-  filter(!is.na(lfstat)) %>%
-  group_by(wave, lfstat) %>%
-  summarise(Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = T),
-            Mean_Benefit    = mean(benefit_MT, na.rm = T)
-  ) %>%
-  print(n = 90)
+# uk %>%
+#   group_by(wave, benefit_MT) %>%
+#   summarise(mean_rel_happy = mean(rel_happy, na.rm = T) %>%
+#               round(2)) %>%
+#   na.omit() %>%
+#   spread(benefit_MT, mean_rel_happy)
 ```
-
-### By employment
-
-```{r, echo=FALSE, error=FALSE}
-uk %>%
-  filter(!is.na(job)) %>%
-  group_by(wave, job) %>%
-  summarise(Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = T),
-            Mean_Benefit    = mean(benefit_MT, na.rm = T)
-  ) %>%
-  print(n = 30)
-```
-
-### Benefit recipients only
-
-```{r, echo=FALSE, error=FALSE}
-uk %>%
-  filter(
-    !is.na(lfstat),
-    benefit_MT == 1
-  ) %>%
-  group_by(wave, lfstat) %>%
-  summarise(
-    Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = TRUE),
-    N_Benefit = n(),
-    .groups = "drop"
-  ) %>%
-  print (n = 90)
-```
-
-#### Benefit recipients and paid work
-
-```{r, echo=FALSE}
-uk %>%
-  filter(
-    !is.na(job),
-    benefit_MT == 1
-  ) %>%
-  group_by(wave, job) %>%
-  summarise(
-    Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = TRUE),
-    N_Benefit = n(),
-    .groups = "drop"
-  ) %>%
-  print (n = 90)
-```
-
-------------------------------------------------------------------------
-
-## Correlation Matrices
-
-### Log Household Net Income OECD equivalence scale
-
-```{r, echo=FALSE}
-income_cor <- uk %>%
-  select(pidp, wave, log_hhnetinc_oecd) %>%
-  arrange(pidp, wave) %>%
-  tidyr::pivot_wider(
-    names_from = wave,
-    values_from = log_hhnetinc_oecd,
-    names_prefix = "log_hhnetinc_oecd_"
-  ) %>%
-  select(
-    all_of(
-      paste0("log_hhnetinc_oecd_", 1:15)
-    )
-  ) %>%
-  cor(use = "pairwise.complete.obs") %>%
-  round(2)
-
-income_cor
-```
-
-### benefitMT
-
-```{r, echo=FALSE}
-benefitMT_cor <- uk %>%
-  select(pidp, wave, benefit_MT) %>%
-  tidyr::pivot_wider(
-    names_from = wave,
-    values_from = benefit_MT,
-    names_prefix = "benefit_MT_"
-  ) %>%
-  select(
-    any_of(
-      paste0("benefit_MT_", 1:15)
-    )
-  ) %>%
-  cor(use = "pairwise.complete.obs") %>%
-  round(2)
-
-benefitMT_cor
-```
-
-### Relationship satisfaction
-
-```{r, echo=FALSE}
-relhappy_cor <- uk %>%
-  select(pidp, wave, rel_happy) %>%
-  tidyr::pivot_wider(
-    names_from = wave,
-    values_from = rel_happy,
-    names_prefix = "rel_happy_"
-  ) %>%
-  select(
-    any_of(
-      paste0("rel_happy_", c(1, 3, 5, 7, 9, 11, 13, 15))
-    )
-  ) %>%
-  cor(use = "pairwise.complete.obs") %>%
-  round(2)
-
-relhappy_cor
-```
-
-------------------------------------------------------------------------
-
-## Transition Tables
-
-```{r, echo=FALSE, error=FALSE}
-uk %>%
-  group_by(wave, benefit_MT) %>%
-  summarise(mean_rel_happy = mean(rel_happy, na.rm = T) %>%
-              round(2)) %>%
-  na.omit() %>%
-  spread(benefit_MT, mean_rel_happy)
-```
-
-## Graphs
-
-```{r, include=FALSE}
-tab4 <- uk %>%
-filter(!is.na(benefit_MT)) %>%
-group_by(wave) %>%
-count(benefit_MT) %>%
-mutate(prop = n / sum(n))
-tab4
-```
-
-```{r, echo=FALSE, error=FALSE}
-tab4 %>%
-  ggplot(aes(wave,
-             prop,
-             fill = as.factor(benefit_MT))) +
-  geom_bar(position = "dodge",
-           stat = "identity")
-```
-
-### Alluvial Plots
-
-```{r, echo=FALSE, error=FALSE, include=FALSE}
-trans_data <- uk %>%
-  select(pidp, wave, benefit_MT) %>%
-  tidyr::pivot_wider(
-    names_from = wave,
-    values_from = benefit_MT,
-    names_prefix = "benefit_MT_"
-  ) %>%
-  select(
-    pidp,
-    any_of(paste0("benefit_MT_", 1:15))
-  ) %>%
-  count(
-    across(starts_with("benefit_MT_"))
-  ) %>%
-  mutate(
-    id = row_number()
-  )
-
-trans_data_long <- trans_data %>%
-  gather(
-    key = key,
-    value = value,
-    -n,
-    -id
-  )
-
-trans_data_long <- trans_data_long %>%
-  mutate(
-    wave = str_remove(key, "benefit_MT_") %>%
-      as.numeric(),
-    
-    value = if_else(
-      is.na(value),
-      "Missing",
-      as.character(value)
-    ),
-    
-    value = factor(value),
-    
-    value = fct_relevel(
-      value,
-      "0", "1", "Missing"
-    )
-  )
-
-plot <- ggplot(
-  trans_data_long,
-  aes(
-    x = wave,
-    y = n,
-    stratum = value,
-    fill = value,
-    alluvium = id
-  )
-) +
-  geom_stratum(alpha = .5) +
-  geom_flow()
-```
-
-```{r, echo=FALSE, error=FALSE}
-plot +
-  theme_tufte(base_size = 18) +
-  labs(
-    x = "Wave",
-    y = "Frequency",
-    fill = "means-tested benefit receipt"
-  ) +
-  scale_fill_viridis_d(direction = -1)
-```
-
-### Trends by groups
 
 ```{r, echo=FALSE, error=FALSE}
 uk %>%
@@ -748,7 +843,7 @@ uk %>%
   ) 
 ```
 
-## Moderation effects
+### Moderation effects
 
 ```{r, echo=FALSE, error=FALSE}
 uk %>%
@@ -801,3 +896,577 @@ uk %>%
     color = "Benefit status and Paid Work (Last Week)"
   )
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ## Statistics: Main variables -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(Mean_HH_Net_Log_Income     = mean(log_hhnetinc_oecd, na.rm = T), -->
+<!--             Mean_Benefit               = mean(benefit_MT, na.rm = T), -->
+<!--             Mean_Rel_Happy             = mean(rel_happy, na.rm = T), -->
+<!--             Mean_NChild                = mean(nchild, na.rm = T), -->
+<!--             Mean_MCS                   = mean(mcs, na.rm = T), -->
+<!--             Mean_PCS                   = mean(pcs, na.rm = T) -->
+<!--   ) %>% -->
+<!--   print(n = 16) -->
+
+
+<!-- ``` -->
+
+<!-- ### By LFS -->
+
+<!-- ```{r, echo=FALSE, error=FALSE} -->
+<!-- ### By LFS ---- -->
+<!-- uk %>% -->
+<!--   filter(!is.na(lfstat)) %>% -->
+<!--   group_by(wave, lfstat) %>% -->
+<!--   summarise(Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = T), -->
+<!--             Mean_Benefit    = mean(benefit_MT, na.rm = T) -->
+<!--   ) %>% -->
+<!--   print(n = 90) -->
+<!-- ``` -->
+
+<!-- ### By paid work -->
+
+<!-- ```{r, echo=FALSE, error=FALSE} -->
+<!-- uk %>% -->
+<!--   filter(!is.na(job)) %>% -->
+<!--   group_by(wave, job) %>% -->
+<!--   summarise(Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = T), -->
+<!--             Mean_Benefit    = mean(benefit_MT, na.rm = T) -->
+<!--   ) %>% -->
+<!--   print(n = 30) -->
+<!-- ``` -->
+
+<!-- ### Means-tested benefit receipt only -->
+
+<!-- ```{r, echo=FALSE, error=FALSE} -->
+<!-- uk %>% -->
+<!--   filter( -->
+<!--     !is.na(lfstat), -->
+<!--     benefit_MT == 1 -->
+<!--   ) %>% -->
+<!--   group_by(wave, lfstat) %>% -->
+<!--   summarise( -->
+<!--     Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = TRUE), -->
+<!--     N_Benefit = n(), -->
+<!--     .groups = "drop" -->
+<!--   ) %>% -->
+<!--   print (n = 90) -->
+<!-- ``` -->
+
+<!-- #### Benefit recipients and paid work -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   filter( -->
+<!--     !is.na(job), -->
+<!--     benefit_MT == 1 -->
+<!--   ) %>% -->
+<!--   group_by(wave, job) %>% -->
+<!--   summarise( -->
+<!--     Mean_HH_Net_Log_Income = mean(log_hhnetinc_oecd, na.rm = TRUE), -->
+<!--     N_Benefit = n(), -->
+<!--     .groups = "drop" -->
+<!--   ) %>% -->
+<!--   print (n = 90) -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ## Correlation Matrices -->
+
+<!-- ### Log Household Net Income OECD equivalence scale -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- income_cor <- uk %>% -->
+<!--   select(pidp, wave, log_hhnetinc_oecd) %>% -->
+<!--   arrange(pidp, wave) %>% -->
+<!--   tidyr::pivot_wider( -->
+<!--     names_from = wave, -->
+<!--     values_from = log_hhnetinc_oecd, -->
+<!--     names_prefix = "log_hhnetinc_oecd_" -->
+<!--   ) %>% -->
+<!--   select( -->
+<!--     all_of( -->
+<!--       paste0("log_hhnetinc_oecd_", 1:15) -->
+<!--     ) -->
+<!--   ) %>% -->
+<!--   cor(use = "pairwise.complete.obs") %>% -->
+<!--   round(2) -->
+
+<!-- income_cor -->
+<!-- ``` -->
+
+<!-- ### Means-tested benefit receipt -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- benefitMT_cor <- uk %>% -->
+<!--   select(pidp, wave, benefit_MT) %>% -->
+<!--   tidyr::pivot_wider( -->
+<!--     names_from = wave, -->
+<!--     values_from = benefit_MT, -->
+<!--     names_prefix = "benefit_MT_" -->
+<!--   ) %>% -->
+<!--   select( -->
+<!--     any_of( -->
+<!--       paste0("benefit_MT_", 1:15) -->
+<!--     ) -->
+<!--   ) %>% -->
+<!--   cor(use = "pairwise.complete.obs") %>% -->
+<!--   round(2) -->
+
+<!-- benefitMT_cor -->
+<!-- ``` -->
+
+<!-- ### Relationship satisfaction -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- relhappy_cor <- uk %>% -->
+<!--   select(pidp, wave, rel_happy) %>% -->
+<!--   tidyr::pivot_wider( -->
+<!--     names_from = wave, -->
+<!--     values_from = rel_happy, -->
+<!--     names_prefix = "rel_happy_" -->
+<!--   ) %>% -->
+<!--   select( -->
+<!--     any_of( -->
+<!--       paste0("rel_happy_", c(1, 3, 5, 7, 9, 11, 13, 15)) -->
+<!--     ) -->
+<!--   ) %>% -->
+<!--   cor(use = "pairwise.complete.obs") %>% -->
+<!--   round(2) -->
+
+<!-- relhappy_cor -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+
+<!-- ## Income types -->
+
+<!-- ### Houeshold Net Income -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(N    = sum(!is.na(hhnetinc)), -->
+<!--             Mean = mean(hhnetinc, na.rm = T), -->
+<!--             Var  = var(hhnetinc, na.rm = T), -->
+<!--             SD   = sd(hhnetinc, na.rm = T), -->
+<!--             Min  = min(hhnetinc, na.rm = T), -->
+<!--             Max  = max(hhnetinc, na.rm = T), -->
+<!--             NAs  = sum(is.na(hhnetinc)) -->
+<!--             ) -->
+<!-- ``` -->
+
+<!-- ### Correct high incomes? -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   filter(hhnetinc > 100000) %>% -->
+<!--   select( -->
+<!--     hidp, -->
+<!--     wave, -->
+<!--     hhnetinc, -->
+<!--     hhgrsinc -->
+<!--   ) %>% -->
+<!--   distinct() %>% -->
+<!--   arrange(desc(hhnetinc)) -->
+<!-- ``` -->
+
+<!-- ### Household Gross Income -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(N    = sum(!is.na(hhgrsinc)), -->
+<!--             Mean = mean(hhgrsinc, na.rm = T), -->
+<!--             Var  = var(hhgrsinc, na.rm = T), -->
+<!--             SD   = sd(hhgrsinc, na.rm = T), -->
+<!--             Min  = min(hhgrsinc, na.rm = T), -->
+<!--             Max  = max(hhgrsinc, na.rm = T), -->
+<!--             NAs  = sum(is.na(hhgrsinc)) -->
+<!--             ) -->
+<!-- ``` -->
+
+<!-- ### Household Net Income OECD equivalence scale -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(N    = sum(!is.na(hhnetinc_oecd)), -->
+<!--             Mean = mean(hhnetinc_oecd, na.rm = T), -->
+<!--             Var  = var(hhnetinc_oecd, na.rm = T), -->
+<!--             SD   = sd(hhnetinc_oecd, na.rm = T), -->
+<!--             Min  = min(hhnetinc_oecd, na.rm = T), -->
+<!--             Max  = max(hhnetinc_oecd, na.rm = T), -->
+<!--             NAs  = sum(is.na(hhnetinc_oecd)) -->
+<!--             ) -->
+<!-- ``` -->
+
+<!-- ### Household Gross Income OECD equivalence scale -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(N    = sum(!is.na(hhgrsinc_oecd)), -->
+<!--             Mean = mean(hhgrsinc_oecd, na.rm = T), -->
+<!--             Var  = var(hhgrsinc_oecd, na.rm = T), -->
+<!--             SD   = sd(hhgrsinc_oecd, na.rm = T), -->
+<!--             Min  = min(hhgrsinc_oecd, na.rm = T), -->
+<!--             Max  = max(hhgrsinc_oecd, na.rm = T), -->
+<!--             NAs  = sum(is.na(hhgrsinc_oecd)) -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- ### Log Household Net Income OECD equivalence scale -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(N    = sum(!is.na(log_hhnetinc_oecd)), -->
+<!--             Mean = mean(log_hhnetinc_oecd, na.rm = T), -->
+<!--             Var  = var(log_hhnetinc_oecd, na.rm = T), -->
+<!--             SD   = sd(log_hhnetinc_oecd, na.rm = T), -->
+<!--             Min  = min(log_hhnetinc_oecd, na.rm = T), -->
+<!--             Max  = max(log_hhnetinc_oecd, na.rm = T), -->
+<!--             NAs  = sum(is.na(log_hhnetinc_oecd)) -->
+<!--             ) -->
+<!-- ``` -->
+
+<!-- ### Log Household Gross Income OECD equivalence scale -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise(N    = sum(!is.na(log_hhgrsinc_oecd)), -->
+<!--             Mean = mean(log_hhgrsinc_oecd, na.rm = T), -->
+<!--             Var  = var(log_hhgrsinc_oecd, na.rm = T), -->
+<!--             SD   = sd(log_hhgrsinc_oecd, na.rm = T), -->
+<!--             Min  = min(log_hhgrsinc_oecd, na.rm = T), -->
+<!--             Max  = max(log_hhgrsinc_oecd, na.rm = T), -->
+<!--             NAs  = sum(is.na(log_hhgrsinc_oecd)) -->
+<!--             ) -->
+<!-- ``` -->
+
+
+
+<!-- ##### Summary -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- income_summary <- uk %>% -->
+<!--   summarise( -->
+<!--     across( -->
+<!--       c( -->
+<!--         hhnetinc, -->
+<!--         hhgrsinc, -->
+<!--         hhnetinc_oecd, -->
+<!--         hhgrsinc_oecd, -->
+<!--         log_hhnetinc_oecd, -->
+<!--         log_hhgrsinc_oecd -->
+<!--       ), -->
+<!--       list( -->
+<!--         N = ~sum(!is.na(.)), -->
+<!--         Mean = ~mean(., na.rm = TRUE), -->
+<!--         SD = ~sd(., na.rm = TRUE), -->
+<!--         Min = ~min(., na.rm = TRUE), -->
+<!--         P25 = ~quantile(., 0.25, na.rm = TRUE), -->
+<!--         Median = ~median(., na.rm = TRUE), -->
+<!--         P75 = ~quantile(., 0.75, na.rm = TRUE), -->
+<!--         P95 = ~quantile(., 0.95, na.rm = TRUE), -->
+<!--         P99 = ~quantile(., 0.99, na.rm = TRUE), -->
+<!--         Max = ~max(., na.rm = TRUE) -->
+<!--       ), -->
+<!--       .names = "{.col}_{.fn}" -->
+<!--     ) -->
+<!--   ) %>% -->
+<!--   pivot_longer( -->
+<!--     everything(), -->
+<!--     names_to = c("Variable", ".value"), -->
+<!--     names_sep = "_(?=[^_]+$)" -->
+<!--   ) -->
+<!-- #income_summary -->
+
+<!-- income_summary %>% -->
+<!--   mutate( -->
+<!--     Variable = recode( -->
+<!--       Variable, -->
+<!--       hhnetinc = "Household net income", -->
+<!--       hhgrsinc = "Household gross income", -->
+<!--       hhnetinc_oecd = "Equivalised household net income", -->
+<!--       hhgrsinc_oecd = "Equivalised household gross income", -->
+<!--       log_hhnetinc_oecd = "Log equivalised household net income", -->
+<!--       log_hhgrsinc_oecd = "Log equivalised household gross income" -->
+<!--     ) -->
+<!--   ) %>% -->
+<!--   gt() %>% -->
+<!--   fmt_integer( -->
+<!--     columns = N, -->
+<!--     use_seps = TRUE -->
+<!--   ) %>% -->
+<!--   fmt_number( -->
+<!--     columns = c(Mean, SD, Min, P25, Median, P75, P95, P99, Max), -->
+<!--     decimals = 2, -->
+<!--     use_seps = TRUE -->
+<!--   ) %>% -->
+<!--   cols_label( -->
+<!--     Variable = "Income measure", -->
+<!--     N = "N", -->
+<!--     Mean = "Mean", -->
+<!--     SD = "SD", -->
+<!--     Min = "Min", -->
+<!--     P25 = "P25", -->
+<!--     Median = "Median", -->
+<!--     P75 = "P75", -->
+<!--     P95 = "P95", -->
+<!--     P99 = "P99", -->
+<!--     Max = "Max" -->
+<!--   ) %>% -->
+<!--   tab_header( -->
+<!--     title = "Household Income Statistics" -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- ##### Summary by wave -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- income_summary_wave <- uk %>% -->
+<!--   group_by(wave) %>% -->
+<!--   summarise( -->
+<!--     across( -->
+<!--       c( -->
+<!--         hhnetinc, -->
+<!--         hhgrsinc, -->
+<!--         hhnetinc_oecd, -->
+<!--         hhgrsinc_oecd, -->
+<!--         log_hhnetinc_oecd, -->
+<!--         log_hhgrsinc_oecd -->
+<!--       ), -->
+<!--       list( -->
+<!--         N = ~sum(!is.na(.x)), -->
+<!--         Mean = ~mean(.x, na.rm = TRUE), -->
+<!--         SD = ~sd(.x, na.rm = TRUE), -->
+<!--         Min = ~min(.x, na.rm = TRUE), -->
+<!--         P25 = ~quantile(.x, 0.25, na.rm = TRUE), -->
+<!--         Median = ~median(.x, na.rm = TRUE), -->
+<!--         P75 = ~quantile(.x, 0.75, na.rm = TRUE), -->
+<!--         P95 = ~quantile(.x, 0.95, na.rm = TRUE), -->
+<!--         P99 = ~quantile(.x, 0.99, na.rm = TRUE), -->
+<!--         Max = ~max(.x, na.rm = TRUE) -->
+<!--       ), -->
+<!--       .names = "{.col}_{.fn}" -->
+<!--     ), -->
+<!--     .groups = "drop" -->
+<!--   ) %>% -->
+<!--   pivot_longer( -->
+<!--     cols = -wave, -->
+<!--     names_to = c("variable", ".value"), -->
+<!--     names_pattern = "^(.*)_(N|Mean|SD|Min|P25|Median|P75|P95|P99|Max)$" -->
+<!--   ) %>% -->
+<!--   arrange(wave, variable) -->
+
+<!-- # income_summary_wave %>% -->
+<!-- #   print (n = 91) -->
+
+<!-- income_summary_wave %>% -->
+<!--   mutate( -->
+<!--     variable = recode( -->
+<!--       variable, -->
+<!--       hhnetinc = "Household net income", -->
+<!--       hhgrsinc = "Household gross income", -->
+<!--       hhnetinc_oecd = "Equivalised household net income", -->
+<!--       hhgrsinc_oecd = "Equivalised household gross income", -->
+<!--       log_hhnetinc_oecd = "Log equivalised household net income", -->
+<!--       log_hhgrsinc_oecd = "Log equivalised household gross income" -->
+<!--     ) -->
+<!--   ) %>% -->
+<!--   gt() %>% -->
+<!--   fmt_integer( -->
+<!--     columns = N, -->
+<!--     use_seps = TRUE -->
+<!--   ) %>% -->
+<!--   fmt_number( -->
+<!--     columns = c(Mean, SD, Min, P25, Median, P75, P95, P99, Max), -->
+<!--     decimals = 2, -->
+<!--     use_seps = TRUE -->
+<!--   ) %>% -->
+<!--   cols_label( -->
+<!--     wave = "Wave", -->
+<!--     variable = "Income measure", -->
+<!--     N = "N", -->
+<!--     Mean = "Mean", -->
+<!--     SD = "SD", -->
+<!--     Min = "Min", -->
+<!--     P25 = "P25", -->
+<!--     Median = "Median", -->
+<!--     P75 = "P75", -->
+<!--     P95 = "P95", -->
+<!--     P99 = "P99", -->
+<!--     Max = "Max" -->
+<!--   ) %>% -->
+<!--   tab_header( -->
+<!--     title = "Household Income Statistics by Wave" ) %>% -->
+<!--    tab_options( -->
+<!--     table.font.size = px(11), -->
+<!--     data_row.padding = px(2), -->
+<!--     heading.title.font.size = px(14), -->
+<!--     column_labels.font.size = px(11) -->
+<!--   ) -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ### Sankey/river/alluvial plot -->
+
+<!-- ```{r, echo=FALSE, error=FALSE, include=FALSE} -->
+<!-- trans_data <- uk %>% -->
+<!--   select(pidp, wave, benefit_MT) %>% -->
+<!--   tidyr::pivot_wider( -->
+<!--     names_from = wave, -->
+<!--     values_from = benefit_MT, -->
+<!--     names_prefix = "benefit_MT_" -->
+<!--   ) %>% -->
+<!--   select( -->
+<!--     pidp, -->
+<!--     any_of(paste0("benefit_MT_", 1:15)) -->
+<!--   ) %>% -->
+<!--   count( -->
+<!--     across(starts_with("benefit_MT_")) -->
+<!--   ) %>% -->
+<!--   mutate( -->
+<!--     id = row_number() -->
+<!--   ) -->
+
+<!-- trans_data_long <- trans_data %>% -->
+<!--   gather( -->
+<!--     key = key, -->
+<!--     value = value, -->
+<!--     -n, -->
+<!--     -id -->
+<!--   ) -->
+
+<!-- trans_data_long <- trans_data_long %>% -->
+<!--   mutate( -->
+<!--     wave = str_remove(key, "benefit_MT_") %>% -->
+<!--       as.numeric(), -->
+
+<!--     value = if_else( -->
+<!--       is.na(value), -->
+<!--       "Missing", -->
+<!--       as.character(value) -->
+<!--     ), -->
+
+<!--     value = factor(value), -->
+
+<!--     value = fct_relevel( -->
+<!--       value, -->
+<!--       "0", "1", "Missing" -->
+<!--     ) -->
+<!--   ) -->
+
+<!-- plot <- ggplot( -->
+<!--   trans_data_long, -->
+<!--   aes( -->
+<!--     x = wave, -->
+<!--     y = n, -->
+<!--     stratum = value, -->
+<!--     fill = value, -->
+<!--     alluvium = id -->
+<!--   ) -->
+<!-- ) + -->
+<!--   geom_stratum(alpha = .5) + -->
+<!--   geom_flow() -->
+<!-- ``` -->
+
+<!-- ```{r, echo=FALSE, error=FALSE} -->
+<!-- plot + -->
+<!--   theme_tufte(base_size = 18) + -->
+<!--   labs( -->
+<!--     x = "Wave", -->
+<!--     y = "Frequency", -->
+<!--     fill = "means-tested benefit receipt" -->
+<!--   ) + -->
+<!--   scale_fill_viridis_d(direction = -1) -->
+<!-- ``` -->

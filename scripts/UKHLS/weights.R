@@ -99,48 +99,53 @@ uk_w <- svydesign(
 
 # Cross-sectional weights ----
 ## Path
-ukhls_path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls"
+#ukhls_path <- "C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls"
+ukhls_path <- "~/PAIRS/data/UKHLS/"
 
-## Individual waves ----
-weight_info <- tibble(
-  wave = 1:15,
-  prefix = letters[1:15],
-  weight_var = c(
-    "a_indinus_xw",
-    "b_indinub_xw",
-    "c_indinub_xw",
-    "d_indinub_xw",
-    "e_indinub_xw",
-    "f_indinui_xw",     #f_indinub_xw",
-    "g_indinui_xw",
-    "h_indinui_xw",
-    "i_indinui_xw",
-    "j_indinui_xw",
-    "k_indinui_xw",
-    "l_indinui_xw",
-    "m_indinui_xw",
-    "n_inding2_xw",
-    "o_inding2_xw"
-  )
-)
+# ## Individual waves ----
+# weight_info <- tibble(
+#   wave = 1:15,
+#   prefix = letters[1:15],
+#   weight_var = c(
+#     "a_indinus_xw",
+#     "b_indinub_xw",
+#     "c_indinub_xw",
+#     "d_indinub_xw",
+#     "e_indinub_xw",
+#     "f_indinui_xw",     #f_indinub_xw",
+#     "g_indinui_xw",
+#     "h_indinui_xw",
+#     "i_indinui_xw",
+#     "j_indinui_xw",
+#     "k_indinui_xw",
+#     "l_indinui_xw",
+#     "m_indinui_xw",
+#     "n_inding2_xw",
+#     "o_inding2_xw"
+#   )
+# )
+# 
+# ## Weight ----
+# weights_cs <- purrr::pmap_dfr(
+#   weight_info,
+#   function(wave, prefix, weight_var) {
+#     
+#     dat <- haven::read_dta(
+#       paste0(ukhls_path, "/", prefix, "_indresp.dta"),
+#       encoding = "latin1"
+#     )
+#     
+#     dat %>%
+#       dplyr::select(
+#         pidp,
+#         weight_cs = dplyr::all_of(weight_var)
+#       ) %>%
+#       dplyr::mutate(wave = wave)
+#   }
+# )
 
-## Weight ----
-weights_cs <- purrr::pmap_dfr(
-  weight_info,
-  function(wave, prefix, weight_var) {
-    
-    dat <- haven::read_dta(
-      paste0(ukhls_path, "/", prefix, "_indresp.dta")
-    )
-    
-    dat %>%
-      dplyr::select(
-        pidp,
-        weight_cs = dplyr::all_of(weight_var)
-      ) %>%
-      dplyr::mutate(wave = wave)
-  }
-)
+### Save ----
+write_dta(weights_cs, "~/PAIRS/data/weights_cs.dta")
 
 
 
@@ -218,7 +223,7 @@ uk_cs_w <- svydesign(
 
 
 
-#--------------------------------
+# # # # # # # # # # # # # # # # # 
 benefit_time_series <- uk_cs %>%
   group_by(wave) %>%
   summarise(
