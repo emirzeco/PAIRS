@@ -193,13 +193,14 @@ uk <- uk %>%
 
 ## Sample restriction
 
-**Analyses are restricted to working-age respondents (20–60) who are in a cohabiting or marital relationship**
+**Analyses are restricted to working-age respondents (20–60) who are in a cohabiting or marital relationship and not in education**
 
 ```{r, eval=FALSE, echo=TRUE}
 uk <- uk %>%
   filter(
     age >= 20 & age <= 60,
-    !is.na(relstat2)
+    !is.na(relstat2),
+    school != 3 | is.na(school)
   )
 ```
 

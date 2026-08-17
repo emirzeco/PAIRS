@@ -241,7 +241,20 @@ uk <- uk %>%
 
 
 ## Education ----
-
+uk <- uk %>%
+  mutate(
+    education = case_when(
+      qfhigh_dv %in% 1:6 ~ "Higher",
+      qfhigh_dv %in% 7:12 ~ "Middle",
+      qfhigh_dv %in% c(13:16, 96) ~ "Lower",
+      TRUE ~ NA_character_
+    ),
+    
+    education = factor(
+      education,
+      levels = c("Lower", "Middle", "Higher")
+    )
+  )
 
 
 oecd_wave4 <- read_dta(
@@ -661,11 +674,13 @@ uk <- uk %>%
 
 
 
-# Sample reduction AGE & RELSAT ----
+# Sample reduction AGE, RELSAT & EDUC ----
+# Sample reduction: age, relationship status, education ----
 uk <- uk %>%
   filter(
     age >= 20 & age <= 60,
-    !is.na(relstat2)
+    !is.na(relstat2),
+    school != 3 | is.na(school)
   )
 
 
