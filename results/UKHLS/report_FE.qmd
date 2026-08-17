@@ -1,17 +1,84 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# R code for                                                                              # 
-# Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
-# Author: Emir Zecovic                                                                    #
-# Last Update: 17.08.2026                                                                 #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+---
+title: "Fixed Effects UKHLS"
+author: "Emir Zecovic"
 
-# # # # # # # # # # # #
-# FE ANALYSIS UKHLS   #
-# # # # # # # # # # # #  
+format:
+  html:
+    theme: spacelab
+    embed-resources: true
+    smooth-scroll: true
+    toc: true
+    toc-location: left
+    page-layout: full
+    toc-depth: 6
+    toc-title: Contents
 
+number-sections: false
 
+comments:
+  hypothesis: false
 
-# M1 (Log_HH_Inc_OECD) ----
+editor: visual
+---
+
+```{r, include=FALSE}
+# Setup ----
+## Packages ----
+# if ("convenience" %in% rownames(installed.packages()) ==F) {
+#   devtools::install_github("ratsupaltuf/convenience", force=T)
+# }
+
+alabs<- function(x, kable=TRUE, extended=T){
+  tb<- tibble(labels=names(attributes(x)$labels), values=attributes(x)$labels)
+  
+  if(extended==T) {
+    lab<- attributes(x)$label
+    cl<- class(x)
+    u<- unique(x)
+    
+    if(kable==T) {
+      
+      cat(lab, "\n",
+          "Class:",cl, "\n",
+          "Unique values:", u, "\n",
+          "\n"
+      )
+      print(knitr::kable(tb, caption="Labels"))
+      
+    }  else {
+      cat(lab, "\n",
+          "Class:",cl, "\n",
+          "Unique values:", u, "\n",
+          "\n"
+      )
+      print(tb)
+    }
+  } else if (kable==T) {
+    
+    kable(tb)
+  }  else {
+    tb
+  }
+}
+
+packages <- c("tidyverse", "haven", "pastecs", "datawizard", #"convenience",
+              "ggplot2", "ggalluvial", "ggthemes", "viridis", "ggrepel",
+              "sjPlot", "lme4", "knitr", "kableExtra", "gt", "survey",
+              "stringr", "flextable", "officer", "sf", "plm", "stargazer",
+              "patchwork", "tidytext", "sjlabelled")
+install.packages(setdiff(packages, rownames(installed.packages())))
+suppressMessages(lapply(packages, library, character.only = TRUE, quietly=T))
+rm(packages)
+options(max.print=10000)
+
+## Load ----
+uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+#uk <- readRDS("~/PAIRS/data/uk.rds")
+```
+
+## M1 (Log_HH_Inc_OECD)
+
+```{r}
 ## M1a ----
 M1a <- plm(
   rel_happy ~ log_hhgrsinc_oecd,
@@ -49,9 +116,9 @@ M1d <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-
+```{r, echo=FALSE}
 stargazer(list(M1a, M1b, M1c, M1d),
           
           column.labels=c("M1a", "M1b", "M1c", "M1d"
@@ -69,10 +136,11 @@ stargazer(list(M1a, M1b, M1c, M1d),
           ),
           align=TRUE,
           type = "text")
+```
 
+## M2 (Means-tested benefits)
 
-
-
+```{r}
 # M2 (Means-tested) ----
 ## M2a ----
 M2a <- plm(
@@ -125,9 +193,9 @@ M2e <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-
+```{r, echo=FALSE}
 stargazer(list(M2a, M2b, M2c, M2d, M2e),
           
           column.labels=c("M2a", "M2b", "M2c", "M2d", "M2e"),
@@ -146,11 +214,11 @@ stargazer(list(M2a, M2b, M2c, M2d, M2e),
           
           align=TRUE,
           type = "text")
+```
 
+# M3 (In-work)
 
-
-
-# M3 (In-work) ----
+```{r}
 uk_emp <- uk %>%
   filter(
     lfstat %in% c(
@@ -209,9 +277,9 @@ M3e <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-
+```{r, echo=FALSE}
 stargazer(list(M3a, M3b, M3c, M3d, M3e),
           
           column.labels=c("M3a", "M3b", "M3c", "M3d", "M3e"),
@@ -227,11 +295,11 @@ stargazer(list(M3a, M3b, M3c, M3d, M3e),
           
           align=TRUE,
           type = "text")
+```
 
+## M4 (Out-of-work)
 
-
-
-# M4 (Out-of-work) ----
+```{r}
 uk_unemp <- uk %>%
   filter(
     lfstat %in% c(
@@ -290,8 +358,9 @@ M4e <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
+```{r, echo=FALSE}
 stargazer(list(M4a, M4b, M4c, M4d, M4e),
           
           column.labels=c("M4a", "M4b", "M4c", "M4d", "M4e"),
@@ -307,11 +376,11 @@ stargazer(list(M4a, M4b, M4c, M4d, M4e),
           
           align=TRUE,
           type = "text")
+```
 
+## M5 (Men) & M6 (Women)
 
-
-
-
+```{r}
 # M5 (Male) ----
 uk_men <- uk %>%
   filter(sex == "Male")
@@ -366,12 +435,9 @@ M6b <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-
-
-
-
+```{r, echo=FALSE}
 stargazer(list(M5a, M5b, M6a, M6b),
           
           column.labels=c("M5a (Men)", "M5b (Men)", "M6a (Women)", "M6b (Women)"
@@ -390,13 +456,11 @@ stargazer(list(M5a, M5b, M6a, M6b),
           
           align=TRUE,
           type = "text")
+```
 
+## M7 (In-work + Men/Women) & M8 (Out-of-work + Men/Women)
 
-
-
-
-
-
+```{r}
 # M7 (In-work + Men/Women) ----
 uk_emp_m<- uk_men %>%
   filter(
@@ -482,9 +546,9 @@ M8b <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-
+```{r, echo=FALSE}
 stargazer(list(M7a, M7b, M8a, M8b),
           
           column.labels=c("M7a (In-work + Men)", "M7b (In-Work + Women)",
@@ -503,12 +567,11 @@ stargazer(list(M7a, M7b, M8a, M8b),
           
           align=TRUE,
           type = "text")
+```
 
+### Bonus: M10 (Dyadic Adjustment Scale: Relationship satisfaction subscale)
 
-
-
-# M10 (DAS) ----
-## M10a ----
+```{r}
 M10a <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
@@ -519,7 +582,6 @@ M10a <- plm(
   model = "within"
 )
 
-## M10b ----
 M10b <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
@@ -530,7 +592,6 @@ M10b <- plm(
   model = "within"
 )
 
-## M10c ----
 M10c <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
@@ -540,22 +601,22 @@ M10c <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
+```{r, echo=FALSE}
 stargazer(list(M10a, M10b, M10c),
           
           column.labels=c("M10a (all)", "M10b (In-work)", "M10c (Out-of-work)"
           ),
-          
+    
           
           align=TRUE,
           type = "text")
+```
 
+#### DAS (Men/Women)
 
-
-
-# M11 (Men/Women)
-## M11a ----
+```{r}
 M11a <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
@@ -567,7 +628,6 @@ M11a <- plm(
 )
 
 
-## M11b ----
 M11b <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
@@ -577,24 +637,23 @@ M11b <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-
-
+```{r, echo=FALSE}
 stargazer(list(M11a, M11b),
           
           column.labels=c("M11a (Men)", "M11b (Women)"
           ),
-          
+    
           
           align=TRUE,
           type = "text")
+```
 
+#### DAS (In-/Out-Work + Men/Women)
 
-
-# M12 (DAS (In-/Out-Work + Men/Women) ----
-## M12a ---- 
-M12a <- plm(
+```{r}
+M100 <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + 
@@ -604,8 +663,8 @@ M12a <- plm(
   model = "within"
 )
 
-## M12b ----
-M12b <- plm(
+
+M200 <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + 
@@ -617,8 +676,9 @@ M12b <- plm(
 
 
 
-## M13a ----
-M13a <- plm(
+
+##
+M300 <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
     relstat2 + relevel(lfstat, ref = "Inactive") + nchild +
@@ -628,8 +688,7 @@ M13a <- plm(
   model = "within"
 )
 
-## M13b ----
-M13b <- plm(
+M400 <- plm(
   DAS_rel_sat ~ benefit_MT +
     log_hhgrsinc_oecd + 
     relstat2 + relevel(lfstat, ref = "Inactive") + nchild +
@@ -638,14 +697,16 @@ M13b <- plm(
   index = "pidp",
   model = "within"
 )
+```
 
-
-stargazer(list(M12a, M12b, M13a, M13b),
+```{r, echo=FALSE}
+stargazer(list(M100, M200, M300, M400),
           
-          column.labels=c("M7a (In-work + Men)", "M7b (In-Work + Women)",
-                          "M8a (Out-of-work + Men)", "M8b (Out-of-work + Women)"
-          ),
-          
+          column.labels=c("M100 (In-work + Men)", "M200 (In-Work + Women)",
+                          "M300 (Out-of-work + Men)", "M400 (Out-of-work + Women)"
+                          ),
+    
           
           align=TRUE,
           type = "text")
+```

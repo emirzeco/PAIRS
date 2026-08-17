@@ -212,34 +212,22 @@ uk <- uk %>%
   )
 
 ## Ethnicity ----
-# uk <- uk %>%
-#   mutate(
-#     ethnicity_raw = case_when(
-#       ethn_dv > 0 ~ ethn_dv,
-#       racel_dv > 0 ~ racel_dv,
-#       TRUE ~ NA_real_
-#     )
-#   ) %>%
-#   group_by(pidp) %>%
-#   tidyr::fill(ethnicity_raw, .direction = "downup") %>%
-#   ungroup()
-# 
-# uk <- uk %>%
-#   mutate(
-#     ethnicity = case_when(
-#       ethnicity_raw == 1 ~ 1,
-#       ethnicity_raw %in% c(
-#         2, 3, 4, 5, 6, 7, 8, 9, 10,
-#         11, 12, 13, 14, 15, 16, 17, 97
-#       ) ~ 2,
-#       TRUE ~ NA_real_
-#     ),
-#     ethnicity = factor(
-#       ethnicity,
-#       levels = c(1, 2),
-#       labels = c("White British", "Other")
-#     )
-#   )
+uk <- uk %>%
+  mutate(
+    ethnicity = case_when(
+      ethn_dv == 1 ~ 1,
+      ethn_dv %in% c(
+        2, 3, 4, 5, 6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15, 16, 17, 97
+      ) ~ 2,
+      TRUE ~ NA_real_
+    ),
+    ethnicity = factor(
+      ethnicity,
+      levels = c(1, 2),
+      labels = c("White British", "Other")
+    )
+  )
 
 
 ## OECD scale ----
@@ -250,6 +238,10 @@ uk <- uk %>%
 #     hidp = d_hidp,
 #     oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
 #   ) # correct for merging error in wave 4
+
+
+## Education ----
+
 
 
 oecd_wave4 <- read_dta(
@@ -467,7 +459,16 @@ uk <- uk %>%
 
 
 # Benefits ----
-## Means-tested ----
+## CTC ----
+uk <- uk %>%
+  mutate(
+    chi_benefit_CTC = case_when(
+      chi_benefit_CTC == 1 ~ 1,
+      chi_benefit_CTC == 2 ~ 0,
+      TRUE ~ NA_real_
+      )
+    )
+
 uk <- uk %>%
   mutate(
     benefit_MT = case_when(
@@ -489,6 +490,9 @@ uk <- uk %>%
             # Housing Benefit
             hou_benefit_HB == 1 |
             inct_benefit_hous == 1 |
+            
+            # Child Tax Credit
+            chi_benefit_CTC == 1 |
             
             # Working Tax Credit
             bt_benefit_WTC == 1 |
@@ -528,6 +532,9 @@ uk <- uk %>%
             # Housing Benefit
             oth_benefit_hous == 1 |
             inct_benefit_hous == 1 |
+            
+            # Child Tax Credit
+            chi_benefit_CTC == 1 |
             
             # Working Tax Credit
             oth_benefit_WTC == 1 |

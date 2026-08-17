@@ -100,6 +100,9 @@ uk <- uk %>%
             hou_benefit_HB == 1 |
             inct_benefit_hous == 1 |
             
+            # Child Tax Credit
+            chi_benefit_CTC == 1 |
+            
             # Working Tax Credit
             bt_benefit_WTC == 1 |
             tax_benefit_WTC == 1 |
@@ -137,6 +140,9 @@ uk <- uk %>%
             # Housing Benefit
             oth_benefit_hous == 1 |
             inct_benefit_hous == 1 |
+            
+            # Child Tax Credit
+            chi_benefit_CTC == 1 |
             
             # Working Tax Credit
             oth_benefit_WTC == 1 |
@@ -188,6 +194,7 @@ uk <- uk %>%
 ## Sample restriction
 
 **Analyses are restricted to working-age respondents (20–60) who are in a cohabiting or marital relationship**
+
 ```{r, eval=FALSE, echo=TRUE}
 uk <- uk %>%
   filter(
@@ -195,8 +202,6 @@ uk <- uk %>%
     !is.na(relstat2)
   )
 ```
-
-
 
 ## Unweighted descriptives
 
@@ -357,6 +362,12 @@ uk <- uk %>%
       TRUE ~ 0
     ),
     
+    # Child Tax Credit
+    check_CTC = case_when(
+      chi_benefit_CTC == 1 ~ 1,
+      TRUE ~ 0
+    ),
+    
     # Working Tax Credit
     check_WTC = case_when(
       wave %in% 1:5 &
@@ -412,6 +423,11 @@ benefit_components <- uk %>%
       1
     ),
     
+    Child_Tax_Credit = round(
+      100 * mean(check_CTC == 1),
+      1
+    ),
+    
     WTC = round(
       100 * mean(check_WTC == 1),
       1
@@ -453,6 +469,9 @@ benefit_time_series_components <- uk %>%
     HB_unweighted = sum(check_HB == 1, na.rm = TRUE),
     HB_weighted = sum(weight_cs * (check_HB == 1), na.rm = TRUE),
 
+    CTC_unweighted = sum(check_CTC == 1, na.rm = TRUE),
+    CTC_weighted = sum(weight_cs * (check_CTC == 1), na.rm = TRUE),
+
     WTC_unweighted = sum(check_WTC == 1, na.rm = TRUE),
     WTC_weighted = sum(weight_cs * (check_WTC == 1), na.rm = TRUE),
 
@@ -470,6 +489,7 @@ benefit_plot_data <- benefit_time_series_components %>%
     JSA_weighted,
     IS_weighted,
     HB_weighted,
+    CTC_weighted,
     WTC_weighted,
     UC_weighted
   ) %>%
@@ -484,6 +504,7 @@ benefit_plot_data <- benefit_time_series_components %>%
       JSA_weighted = "Jobseeker's Allowance",
       IS_weighted = "Income Support",
       HB_weighted = "Housing Benefit",
+      CTC_weighted = "Child Tax Credit",
       WTC_weighted = "Working Tax Credit",
       UC_weighted = "Universal Credit"
     )
