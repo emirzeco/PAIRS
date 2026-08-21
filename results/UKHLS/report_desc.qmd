@@ -71,8 +71,8 @@ rm(packages)
 options(max.print=10000)
 
 ## Load ----
-uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
-#uk <- readRDS("~/PAIRS/data/uk.rds")
+#uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+uk <- readRDS("~/PAIRS/data/uk.rds")
 ```
 
 ## Means-tested benefit coding
@@ -256,8 +256,8 @@ ggplot(
 ### Benefit types
 
 ```{r, include=FALSE}
-weights_cs <- read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/weights_cs.dta")
-#weights_cs <- read_dta("~/PAIRS/data/weights_cs.dta")
+#weights_cs <- read_dta("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/weights_cs.dta")
+weights_cs <- read_dta("~/PAIRS/data/weights_cs.dta")
 
 ## Merge ----
 uk <- uk %>%

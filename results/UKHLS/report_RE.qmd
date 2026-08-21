@@ -72,8 +72,8 @@ rm(packages)
 options(max.print=10000)
 
 ## Load ----
-uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
-#uk <- readRDS("~/PAIRS/data/uk.rds")
+#uk <- readRDS("C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+uk <- readRDS("~/PAIRS/data/uk.rds")
 ```
 
 ## M1 (Log_HH_Inc_OECD)
@@ -101,7 +101,7 @@ M1b <- plm(
 
 ## M1c ----
 M1c <- plm(
-  rel_happy ~ log_hhgrsinc_oecd +
+  rel_happy ~ log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + gor_dv + 
     factor(wave),
@@ -116,11 +116,11 @@ stargazer(
   list(M1a, M1b, M1c),
   column.labels = c("M1a", "M1b", "M1c"),
   
-  keep = c("log_hhnetinc_oecd", "log_hhgrsinc_oecd", "lfstat"),
+  keep = c("log_hhnetinc_oecd", "log_hhgrslabinc_oecd", "lfstat"),
   
   covariate.labels = c(
     "Equivalence household net income (log)",
-    "Equivalence household gross income (log)",
+    "Equivalence household gross labor income (log)",
     "Full-time employed (Ref. Retired)",
     "Part-time employed",
     "Self-employed",
@@ -156,7 +156,7 @@ M2a <- plm(
 ## M2b ----
 M2b <- plm(
   rel_happy ~ benefit_MT +
-    log_hhgrsinc_oecd +
+    log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + gor_dv + 
     factor(wave),
@@ -171,11 +171,11 @@ stargazer(
   list(M2a, M2b),
   column.labels = c("M2a", "M2b"),
   
-  keep = c("benefit_MT","log_hhgrsinc_oecd", "lfstat"),
+  keep = c("benefit_MT","log_hhgrslabinc_oecd", "lfstat"),
   
   covariate.labels = c(
     "Means-tested benefit receipt (0/1)",
-    "Equivalence household gross income (log)",
+    "Equivalence household gross labor income (log)",
     "Full-time employed (Ref. Retired)",
     "Part-time employed",
     "Self-employed",
@@ -221,7 +221,7 @@ M3a <- plm(
 ## M3b ----
 M3b <- plm(
   rel_happy ~ benefit_MT +
-    log_hhgrsinc_oecd +
+    log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + lfstat + nchild + gor_dv + 
     factor(wave),
@@ -236,11 +236,11 @@ stargazer(
   list(M3a, M3b),
   column.labels = c("M3a", "M3b"),
   
-  keep = c("benefit_MT","log_hhgrsinc_oecd", "lfstat"),
+  keep = c("benefit_MT","log_hhgrslabinc_oecd", "lfstat"),
   
   covariate.labels = c(
     "Means-tested benefit receipt (0/1)",
-    "Equivalence household gross income (log)",
+    "Equivalence household gross labor income (log)",
     "Part-time employed (Ref. Full-time-employed)",
     "Self-employed"
   ),
@@ -282,7 +282,7 @@ M4a <- plm(
 ## M4b ----
 M4b <- plm(
   rel_happy ~ benefit_MT +
-    log_hhgrsinc_oecd +
+    log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Inactive") + nchild + gor_dv + 
     factor(wave),
@@ -298,11 +298,11 @@ stargazer(
   list(M4a, M4b),
   column.labels = c("M4a", "M4b"),
   
-  keep = c("benefit_MT","log_hhgrsinc_oecd", "lfstat"),
+  keep = c("benefit_MT","log_hhgrslabinc_oecd", "lfstat"),
   
   covariate.labels = c(
     "Means-tested benefit receipt (0/1)",
-    "Equivalence household gross income (log)",
+    "Equivalence household gross labor income (log)",
     "Unemployed (Ref. Inactive)",
     "Retired"
   ),
@@ -338,7 +338,7 @@ M5a <- plm(
 ## M5b ----
 M5b <- plm(
   rel_happy ~ benefit_MT +
-    log_hhgrsinc_oecd + 
+    log_hhgrslabinc_oecd + 
     age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + gor_dv + 
     factor(wave),
@@ -354,11 +354,11 @@ stargazer(
   list(M5a, M5b),
   column.labels = c("M5a", "M5b"),
   
-  keep = c("benefit_MT","log_hhgrsinc_oecd", "lfstat"),
+  keep = c("benefit_MT","log_hhgrslabinc_oecd", "lfstat"),
   
   covariate.labels = c(
     "Means-tested benefit receipt (0/1)",
-    "Equivalence household gross income (log)",
+    "Equivalence household gross labor income (log)",
     "Full-time employed (Ref. Retired)",
     "Part-time employed",
     "Self-employed",
@@ -398,7 +398,7 @@ M6a <- plm(
 ## M6b ----
 M6b <- plm(
   rel_happy ~ benefit_MT +
-    log_hhgrsinc_oecd + 
+    log_hhgrslabinc_oecd + 
     age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + gor_dv + 
     factor(wave),
@@ -413,11 +413,11 @@ stargazer(
   list(M6a, M6b),
   column.labels = c("M6a", "M6b"),
   
-  keep = c("benefit_MT","log_hhgrsinc_oecd", "lfstat"),
+  keep = c("benefit_MT","log_hhgrslabinc_oecd", "lfstat"),
   
   covariate.labels = c(
     "Means-tested benefit receipt (0/1)",
-    "Equivalence household gross income (log)",
+    "Equivalence household gross labor income (log)",
     "Full-time employed (Ref. Retired)",
     "Part-time employed",
     "Self-employed",
@@ -444,7 +444,7 @@ stargazer(
 ## M10a ----
 M10a <- plm(
   DAS_rel_sat ~ benefit_MT +
-    log_hhgrsinc_oecd +
+    log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Retired") + nchild + gor_dv + 
     factor(wave),
@@ -457,7 +457,7 @@ M10a <- plm(
 ## M10b (In-work) ----
 M10b <- plm(
   DAS_rel_sat ~ benefit_MT +
-    log_hhgrsinc_oecd +
+    log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + lfstat + nchild + gor_dv + 
     factor(wave),
@@ -469,7 +469,7 @@ M10b <- plm(
 ## M10c (Out-of-work) ----
 M10c <- plm(
   DAS_rel_sat ~ benefit_MT +
-    log_hhgrsinc_oecd +
+    log_hhgrslabinc_oecd +
     sex + age + ethnicity + education + 
     relstat2 + relevel(lfstat, ref = "Inactive") + nchild + gor_dv + 
     factor(wave),
@@ -478,8 +478,6 @@ M10c <- plm(
   model = "random"
 )
 ```
-
-
 
 ```{r, echo=FALSE}
 stargazer(list(M10a, M10b, M10c),

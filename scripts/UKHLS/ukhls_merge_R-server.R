@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 13.05.2026                                                                 #
+# Last Update: 18.08.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # # # # # # #
@@ -74,7 +74,7 @@ chvars <- c("age_dv chddvg2_xw chddvub_lw chddvub_xw chddvui_lw chddvui_xw count
 
 ## HH ----
 ## These variables from the hhresp files will be included. These include some key variables as determined by us PLUS any variables requested by you.
-hhvars <- c("country fihhmnnet1_dv fihhmngrs_dv fihhmnprben_dv gor_dv hhden01_xw hhden91_xw hhden99_xw hhdeng2_xw hhdenub_xw hhdenui_xw hhdenus_xw hhsize hhtype_dv hidp hsivlw ieqmoecd_dv nkids_dv psu strata tenure_dv urban_dv xpgaslw xpleclw nadoecd_dv nchoecd_dv")
+hhvars <- c("country fihhmnlabgrs_dv fihhmnnet1_dv fihhmngrs_dv fihhmnprben_dv gor_dv hhden01_xw hhden91_xw hhden99_xw hhdeng2_xw hhdenub_xw hhdenui_xw hhdenus_xw hhsize hhtype_dv hidp hsivlw ieqmoecd_dv nkids_dv psu strata tenure_dv urban_dv xpgaslw xpleclw nadoecd_dv nchoecd_dv")
 
 ## Youth ----
 ## These variables from the youth files will be included. These include some key variables as determined by us PLUS any variables requested by you.

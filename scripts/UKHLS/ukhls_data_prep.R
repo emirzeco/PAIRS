@@ -2,7 +2,7 @@
 # R code for                                                                              # 
 # Means-Tested Benefits and Relationship Satisfaction among Low-Income Couples in the UK  #
 # Author: Emir Zecovic                                                                    #
-# Last Update: 17.08.2026                                                                 #
+# Last Update: 18.08.2026                                                                 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # # # # # # # #
@@ -67,8 +67,10 @@ uk <- readRDS("data/UKHLS_long.rds")
 ## Rename ----
 new_var_names <- c(wave                  = "wavename",              # Wave
                    
+                   hhgrslabinc           = "fihhmnlabgrs_dv",       # total gross household labour income: month before interview
+                   
                    hhnetinc              = "fihhmnnet1_dv",         # total household net income - no deductions
-                   hhgrsinc              = "fihhmngrs_dv",          # gross household income: month before interview
+                   hhgrsinc              = "fihhmngrs_dv",          # gross household income 
                    
                    oecdscale             = "ieqmoecd_dv",           # Modified OECD equivalence scale
                    
@@ -239,6 +241,14 @@ uk <- uk %>%
 #     oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
 #   ) # correct for merging error in wave 4
 
+oecd_wave4 <- read_dta(
+  file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
+) %>%
+  transmute(
+    hidp = d_hidp,
+    oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
+  ) # correct for merging error in wave 4
+
 
 ## Education ----
 uk <- uk %>%
@@ -257,13 +267,7 @@ uk <- uk %>%
   )
 
 
-oecd_wave4 <- read_dta(
-  file.path("C:/Users/Emir  PC/Desktop/PhD/Paper1/Datasets/UKDA-6614-stata/stata/stata14_se/ukhls/d_hhresp.dta")
-) %>%
-  transmute(
-    hidp = d_hidp,
-    oecdscale_wave4 = as.numeric(d_ieqmoecd_dv)
-  ) # correct for merging error in wave 4
+
 
 
 
@@ -450,6 +454,11 @@ uk <- uk %>%
       hhgrsinc < 0 ~ 0
     ),
     
+    hhgrslabinc = case_when(
+      hhgrslabinc >= 0 ~ as.numeric(hhgrslabinc),
+      hhgrslabinc < 0 ~ 0
+    ),
+    
     oecdscale = case_when(
       oecdscale > 0 ~ as.numeric(oecdscale),
       TRUE ~ NA_real_
@@ -460,14 +469,16 @@ uk <- uk %>%
 uk <- uk %>%
   mutate(
     hhnetinc_oecd = hhnetinc / oecdscale,
-    hhgrsinc_oecd = hhgrsinc / oecdscale
+    hhgrsinc_oecd = hhgrsinc / oecdscale,
+    hhgrslabinc_oecd = hhgrslabinc / oecdscale
   )
 
 ### Log ----
 uk <- uk %>%
   mutate(
     log_hhnetinc_oecd = log(hhnetinc_oecd + 10), 
-    log_hhgrsinc_oecd = log(hhgrsinc_oecd + 10)
+    log_hhgrsinc_oecd = log(hhgrsinc_oecd + 10),
+    log_hhgrslabinc_oecd = log(hhgrslabinc_oecd + 10)
   )
 
 
@@ -698,5 +709,5 @@ uk <- uk %>%
 
 # Save ----
 rm(oecd_wave4, new_var_names)
-saveRDS(uk, "C:/Users/Emir  PC/Desktop/PhD/Paper1/PAIRS/data/uk.rds")
+saveRDS(uk, "data/uk.rds")
 #saveRDS(uk, "~/PAIRS/data/uk.rds")
